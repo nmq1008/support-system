@@ -48,18 +48,9 @@ export async function getDashboard(user: AuthUser, f: DashboardFilters) {
   const base = buildWhere(user, f);
   const openList = OPEN_STATUSES.map((s) => `'${s}'`).join(',');
 
-  // Date-range predicate for timeline / new-today widgets.
-  const rangeParams = [...base.params];
-  let ri = base.nextIndex;
-  let rangeClause = base.clause;
-  if (f.from) {
-    rangeParams.push(f.from);
-    rangeClause += ` AND t.created_at >= $${ri++}`;
-  }
-  if (f.to) {
-    rangeParams.push(f.to);
-    rangeClause += ` AND t.created_at <= $${ri++}`;
-  }
+  // First two free placeholder slots after the scope params — used by the
+  // timeline query for its optional [from, to] date range.
+  const ri = base.nextIndex;
 
   const [totals, byStatus, byPriority, byProject, workload, timeline, escalation, quick] = await Promise.all([
     // ── Summary widgets ──
@@ -196,8 +187,6 @@ export async function getDashboard(user: AuthUser, f: DashboardFilters) {
     },
   };
 
-  void rangeClause;
-  void rangeParams;
   await cacheSet(cacheKey, result, 20);
   return result;
 }

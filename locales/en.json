@@ -1,0 +1,76 @@
+{
+  "app": { "name": "HiDesk", "tagline": "Ticket & Support System" },
+  "common": {
+    "search": "Search tickets, code, customer…",
+    "save": "Save", "cancel": "Cancel", "create": "Create", "update": "Update",
+    "delete": "Delete", "confirm": "Confirm", "close": "Close", "back": "Back",
+    "loading": "Loading…", "noData": "No data", "actions": "Actions",
+    "all": "All", "filter": "Filter", "export": "Export Excel", "submit": "Submit",
+    "required": "Required", "optional": "Optional", "yes": "Yes", "no": "No",
+    "today": "Today", "thisWeek": "This week", "customRange": "Custom range",
+    "language": "Language", "darkMode": "Dark mode", "logout": "Logout",
+    "createdAt": "Created", "owner": "Owner", "customer": "Customer",
+    "project": "Project", "org": "Organization", "priority": "Priority",
+    "status": "Status", "unassigned": "Unassigned", "page": "Page"
+  },
+  "nav": {
+    "dashboard": "Dashboard", "tickets": "Tickets", "createTicket": "Create ticket",
+    "templates": "Templates", "reports": "Reports", "admin": "Admin",
+    "orgs": "Customers & Projects", "users": "Users", "sla": "SLA config"
+  },
+  "auth": {
+    "login": "Sign in", "email": "Email", "password": "Password",
+    "loginBtn": "Sign in", "welcome": "Welcome back",
+    "subtitle": "Sign in to HiDesk", "invalid": "Invalid email or password",
+    "demoAccounts": "Demo accounts (password: Password@123)"
+  },
+  "roles": {
+    "super_admin": "Super Admin", "csm": "CSM", "dev_lead": "Dev Lead",
+    "dev": "Dev/Tester", "gate": "CS/BA Gate", "customer_admin": "Customer Admin", "customer": "Customer"
+  },
+  "dashboard": {
+    "title": "Manager Dashboard",
+    "total": "Total tickets", "inProgress": "In progress", "waitingPickup": "Awaiting pickup",
+    "waiting": "Awaiting reply", "newToday": "New today", "slaBreached": "SLA breached",
+    "reopenRate": "Reopen rate", "slaCompliance": "SLA compliance",
+    "byStatus": "Tickets by status", "byPriority": "Tickets by priority",
+    "byProject": "Tickets by project", "workload": "Owner workload",
+    "timeline": "Created vs Closed", "escalation": "Escalation list (P1/P2)",
+    "slaAtRisk": "SLA at risk (< 20%)", "unowned": "Unowned > 2h",
+    "waitingStale": "Waiting > 24h no reply", "hoursLeft": "hours left",
+    "openTickets": "Open", "created": "Created", "closed": "Closed", "noEscalation": "No open P1/P2 tickets"
+  },
+  "ticket": {
+    "code": "Code", "title": "Title", "description": "Description",
+    "list": "Tickets", "detail": "Ticket detail", "create": "Create new ticket",
+    "chooseTemplate": "Choose request type", "changeStatus": "Change status",
+    "comments": "Comments", "history": "History", "internal": "Internal", "public": "Public",
+    "addComment": "Add a comment…", "internalNote": "Internal note (hidden from customer)",
+    "tags": "Tags", "attachments": "Attachments", "slaResolve": "Resolve SLA",
+    "slaBreached": "SLA breached", "slaAtRisk": "SLA at risk", "escalated": "Escalated",
+    "jira": "Jira", "jiraGuide": "Create Jira Issue — Guide", "jiraLink": "Link Jira Issue",
+    "reopenCount": "Reopen count", "duplicateWarning": "Warning: a similar ticket already exists",
+    "assignOwner": "Assign owner", "empty": "No tickets yet", "firstResponse": "First response"
+  },
+  "status": {
+    "null": "Null", "open": "Open", "in_progress": "In Progress", "build": "Build",
+    "testing": "Testing", "deploy": "Deploy", "recheck": "Recheck", "complete": "Complete",
+    "resolved": "Resolved", "close": "Close", "waiting": "Waiting", "on_hold": "On Hold", "reopen": "Reopen"
+  },
+  "statusMeta": {
+    "waiting_for_whom": "Waiting for whom", "waiting_for_what": "Waiting for what", "follow_deadline": "Follow-up deadline",
+    "hold_reason": "Hold reason", "review_date": "Review date",
+    "reopen_reason": "Reopen reason", "root_cause": "Preliminary root cause",
+    "deploy_environment": "Environment", "deploy_time": "Deploy time", "deploy_by": "Deployed by"
+  },
+  "template": {
+    "builder": "Template Builder", "name": "Template name", "nameEn": "Name (EN)",
+    "addField": "Add field", "preview": "Preview", "fieldLabel": "Field label",
+    "types": {
+      "text": "Text (single line)", "textarea": "Textarea", "select": "Dropdown",
+      "multiselect": "Multi-select", "date": "Date picker", "file": "File upload",
+      "priority": "Priority selector", "toggle": "Toggle", "section": "Section header"
+    }
+  },
+  "notif": { "title": "Notifications", "empty": "No new notifications", "markAll": "Mark all as read" }
+}
