@@ -12,3 +12,6 @@ npm-debug.log*
 *.tsbuildinfo
 frontend/.vite/
 uploads/
+
+# Redis dump (stray artifact from local testing)
+dump.rdb
