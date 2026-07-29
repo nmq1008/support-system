@@ -7,7 +7,8 @@ export type NotificationType =
   | 'assigned'
   | 'sla_warning'
   | 'comment'
-  | 'mention';
+  | 'mention'
+  | 'ticket_resolved';
 
 export interface NotifyInput {
   userId: string;
@@ -15,6 +16,8 @@ export interface NotifyInput {
   type: NotificationType;
   title: string;
   message: string;
+  /** Optional ticket context used to render richer emails. */
+  emailMeta?: { code?: string; title?: string; status?: string };
 }
 
 /**
@@ -48,7 +51,12 @@ export async function notifyMany(userIds: string[], base: Omit<NotifyInput, 'use
 async function sendEmailSafe(input: NotifyInput) {
   try {
     const { sendEmail } = await import('./email.adapter');
-    await sendEmail(input);
+    await sendEmail(input, {
+      code: input.emailMeta?.code,
+      title: input.emailMeta?.title,
+      status: input.emailMeta?.status,
+      ticketId: input.ticketId ?? null,
+    });
   } catch {
     /* email is best-effort */
   }

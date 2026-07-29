@@ -72,5 +72,13 @@
       "priority": "Priority selector", "toggle": "Toggle", "section": "Section header"
     }
   },
-  "notif": { "title": "Notifications", "empty": "No new notifications", "markAll": "Mark all as read" }
+  "notif": { "title": "Notifications", "empty": "No new notifications", "markAll": "Mark all as read" },
+  "userMgmt": {
+    "create": "Create user", "edit": "Access", "name": "Full name", "role": "Role",
+    "language": "Language", "active": "Active", "password": "Password",
+    "projects": "Allowed projects", "managedOrgs": "Managed orgs (CSM)",
+    "assignHint": "Pick projects so this user can coordinate / handle tickets",
+    "created": "User created", "updated": "User updated", "homeOrg": "Customer's org",
+    "selectProjects": "Select projects…", "noAccess": "No project access assigned"
+  }
 }

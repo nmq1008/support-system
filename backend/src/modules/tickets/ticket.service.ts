@@ -467,13 +467,29 @@ export async function changeStatus(user: AuthUser, id: string, input: StatusChan
     );
   });
 
-  // Notify customer + owner of status change.
-  const recipients = [row.customer_id, row.owner_id].filter(Boolean) as string[];
-  await notifyMany(recipients, {
+  // When the ticket is marked done → send the customer a dedicated
+  // "resolved" email; otherwise a generic status-change notification.
+  const isDone = ['resolved', 'complete', 'close'].includes(input.status);
+  const emailMeta = { code: row.code, title: row.title, status: input.status };
+
+  if (isDone && row.customer_id) {
+    await notify({
+      userId: row.customer_id,
+      ticketId: id,
+      type: 'ticket_resolved',
+      title: 'Ticket đã được xử lý xong',
+      message: `${row.code}: ${row.title} đã được xử lý xong (${input.status})`,
+      emailMeta,
+    });
+  }
+  // Owner (and customer for non-done changes) get a status-change notice.
+  const others = [row.owner_id, isDone ? null : row.customer_id].filter(Boolean) as string[];
+  await notifyMany(others, {
     ticketId: id,
     type: 'status_changed',
     title: 'Ticket đổi trạng thái',
     message: `${row.code} → ${input.status}`,
+    emailMeta,
   });
   emitDashboard('ticket:changed', { id });
   await cacheInvalidate('dashboard:*');

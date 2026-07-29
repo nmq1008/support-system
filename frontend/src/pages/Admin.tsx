@@ -2,22 +2,32 @@ import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { api } from '../lib/api';
 import { CustomerPriorityBadge, PriorityBadge } from '../components/Badges';
+import { UserFormModal } from '../components/UserFormModal';
+import { useAuth } from '../context/AuthContext';
+import { Icon } from '../components/Icon';
 
 type Tab = 'sla' | 'orgs' | 'users';
 
 export function Admin() {
   const { t } = useTranslation();
+  const { user } = useAuth();
   const [tab, setTab] = useState<Tab>('sla');
   const [sla, setSla] = useState<any>(null);
   const [orgs, setOrgs] = useState<any[]>([]);
   const [projects, setProjects] = useState<any[]>([]);
   const [users, setUsers] = useState<any[]>([]);
+  // undefined = closed · null = create · string = edit that user id
+  const [userModal, setUserModal] = useState<string | null | undefined>(undefined);
+
+  const canManageUsers = user?.role === 'super_admin' || user?.role === 'csm';
+
+  function loadUsers() { api.get('/users').then((r) => setUsers(r.data.items)).catch(() => {}); }
 
   useEffect(() => {
     api.get('/admin/sla').then((r) => setSla(r.data)).catch(() => {});
     api.get('/orgs').then((r) => setOrgs(r.data.items)).catch(() => {});
     api.get('/projects').then((r) => setProjects(r.data.items)).catch(() => {});
-    api.get('/users').then((r) => setUsers(r.data.items)).catch(() => {});
+    loadUsers();
   }, []);
 
   const TABS: { key: Tab; label: string }[] = [
@@ -28,7 +38,13 @@ export function Admin() {
 
   return (
     <>
-      <div className="page-header"><div className="page-title-row"><h1 className="page-title">{t('nav.admin')}</h1></div></div>
+      <div className="page-header"><div className="page-title-row"><h1 className="page-title">{t('nav.admin')}</h1>
+        {tab === 'users' && canManageUsers && (
+          <div className="page-actions">
+            <button className="btn btn-primary btn-sm" onClick={() => setUserModal(null)}><Icon name="plus" size={16} /> {t('userMgmt.create')}</button>
+          </div>
+        )}
+      </div></div>
       <div className="content-scroll">
         <div style={{ display: 'flex', gap: 24, borderBottom: '1px solid var(--border)', marginBottom: 16 }}>
           {TABS.map((tb) => (
@@ -81,11 +97,19 @@ export function Admin() {
         {tab === 'users' && (
           <div className="card" style={{ padding: 0, overflow: 'hidden' }}>
             <table className="table">
-              <thead><tr><th>{t('common.customer')}</th><th>Email</th><th>Role</th><th>Lang</th></tr></thead>
+              <thead><tr><th>{t('userMgmt.name')}</th><th>Email</th><th>{t('userMgmt.role')}</th><th>Lang</th><th style={{ textAlign: 'right' }}>{t('common.actions')}</th></tr></thead>
               <tbody>
                 {users.map((u) => (
                   <tr key={u.id} style={{ cursor: 'default' }}>
-                    <td><b>{u.name}</b></td><td>{u.email}</td><td>{t(`roles.${u.role}`)}</td><td>{u.language?.toUpperCase()}</td>
+                    <td><b>{u.name}</b></td>
+                    <td>{u.email}</td>
+                    <td><span className="tag-chip" style={{ background: 'var(--color-primary-10)', color: 'var(--color-primary)' }}>{t(`roles.${u.role}`)}</span></td>
+                    <td>{u.language?.toUpperCase()}</td>
+                    <td style={{ textAlign: 'right' }}>
+                      {canManageUsers && (
+                        <button className="btn btn-secondary btn-sm" onClick={() => setUserModal(u.id)}>{t('userMgmt.edit')}</button>
+                      )}
+                    </td>
                   </tr>
                 ))}
               </tbody>
@@ -93,6 +117,17 @@ export function Admin() {
           </div>
         )}
       </div>
+
+      {userModal !== undefined && (
+        <UserFormModal
+          userId={userModal}
+          orgs={orgs}
+          projects={projects}
+          currentRole={user!.role}
+          onClose={() => setUserModal(undefined)}
+          onSaved={loadUsers}
+        />
+      )}
     </>
   );
 }

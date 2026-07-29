@@ -101,4 +101,62 @@ router.patch(
   })
 );
 
+/** Full user detail incl. current project/org access (for the admin edit modal). */
+router.get(
+  '/:id',
+  requireRole(...ADMIN_ROLES),
+  asyncHandler(async (req, res) => {
+    const { rows } = await query(
+      `SELECT id, name, email, role, org_id, language, avatar, active, created_at
+       FROM users WHERE id = $1`,
+      [req.params.id]
+    );
+    if (!rows[0]) throw badRequest('USER_NOT_FOUND', 'User không tồn tại');
+    const projects = await query<{ project_id: string }>('SELECT project_id FROM user_project_access WHERE user_id = $1', [req.params.id]);
+    const orgs = await query<{ org_id: string }>('SELECT org_id FROM user_org_access WHERE user_id = $1', [req.params.id]);
+    res.json({
+      ...rows[0],
+      projectIds: projects.rows.map((r) => r.project_id),
+      managedOrgIds: orgs.rows.map((r) => r.org_id),
+    });
+  })
+);
+
+/** Update a user's role / language / active state (admins). */
+router.patch(
+  '/:id',
+  requireRole(...ADMIN_ROLES),
+  validateBody(
+    z.object({
+      name: z.string().min(1).optional(),
+      role: z.enum(ROLES as [string, ...string[]]).optional(),
+      language: z.enum(['vi', 'en']).optional(),
+      active: z.boolean().optional(),
+      password: z.string().min(6).optional(),
+    })
+  ),
+  asyncHandler(async (req, res) => {
+    // A CSM cannot elevate anyone to super_admin.
+    if (req.user!.role === 'csm' && req.body.role === 'super_admin') {
+      throw badRequest('ROLE_FORBIDDEN', 'CSM không thể gán quyền Super Admin');
+    }
+    const sets: string[] = [];
+    const params: unknown[] = [];
+    let i = 1;
+    for (const [key, col] of [['name', 'name'], ['role', 'role'], ['language', 'language'], ['active', 'active']] as const) {
+      if (req.body[key] !== undefined) { sets.push(`${col} = $${i++}`); params.push(req.body[key]); }
+    }
+    if (req.body.password) { sets.push(`password_hash = $${i++}`); params.push(await bcrypt.hash(req.body.password, 10)); }
+    if (!sets.length) return res.json({ ok: true });
+    params.push(req.params.id);
+    const { rows } = await query(
+      `UPDATE users SET ${sets.join(', ')} WHERE id = $${i}
+       RETURNING id, name, email, role, org_id, language, active`,
+      params
+    );
+    if (!rows[0]) throw badRequest('USER_NOT_FOUND', 'User không tồn tại');
+    res.json(rows[0]);
+  })
+);
+
 export default router;

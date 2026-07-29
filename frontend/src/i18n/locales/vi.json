@@ -72,5 +72,13 @@
       "priority": "Chọn ưu tiên", "toggle": "Bật/Tắt", "section": "Tiêu đề nhóm"
     }
   },
-  "notif": { "title": "Thông báo", "empty": "Không có thông báo mới", "markAll": "Đánh dấu đã đọc tất cả" }
+  "notif": { "title": "Thông báo", "empty": "Không có thông báo mới", "markAll": "Đánh dấu đã đọc tất cả" },
+  "userMgmt": {
+    "create": "Tạo user", "edit": "Phân quyền", "name": "Họ tên", "role": "Vai trò",
+    "language": "Ngôn ngữ", "active": "Đang hoạt động", "password": "Mật khẩu",
+    "projects": "Dự án được phép", "managedOrgs": "Org được quản lý (CSM)",
+    "assignHint": "Chọn dự án để user có thể điều phối/xử lý ticket",
+    "created": "Đã tạo user", "updated": "Đã cập nhật user", "homeOrg": "Org của khách hàng",
+    "selectProjects": "Chọn dự án…", "noAccess": "Chưa gán quyền dự án nào"
+  }
 }
