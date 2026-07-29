@@ -11,6 +11,8 @@ import { CreateTicket } from './pages/CreateTicket';
 import { TemplateBuilder } from './pages/TemplateBuilder';
 import { Reports } from './pages/Reports';
 import { Admin } from './pages/Admin';
+import { Board } from './pages/Board';
+import { Profile } from './pages/Profile';
 
 function Protected({ children }: { children: JSX.Element }) {
   const { user, loading } = useAuth();
@@ -35,9 +37,11 @@ export default function App() {
                 }
               >
                 <Route path="/dashboard" element={<Dashboard />} />
+                <Route path="/board" element={<Board />} />
                 <Route path="/tickets" element={<TicketList />} />
                 <Route path="/tickets/new" element={<CreateTicket />} />
                 <Route path="/tickets/:id" element={<TicketDetailPage />} />
+                <Route path="/profile" element={<Profile />} />
                 <Route path="/templates" element={<TemplateBuilder />} />
                 <Route path="/reports" element={<Reports />} />
                 <Route path="/admin" element={<Admin />} />

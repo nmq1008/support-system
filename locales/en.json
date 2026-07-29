@@ -80,5 +80,23 @@
     "assignHint": "Pick projects so this user can coordinate / handle tickets",
     "created": "User created", "updated": "User updated", "homeOrg": "Customer's org",
     "selectProjects": "Select projects…", "noAccess": "No project access assigned"
+  },
+  "profile": {
+    "title": "My profile", "info": "Information", "changePassword": "Change password",
+    "current": "Current password", "new": "New password", "confirm": "Confirm new password",
+    "mismatch": "Passwords do not match", "changed": "Password changed",
+    "notifPrefs": "Notification preferences", "saved": "Saved"
+  },
+  "board": {
+    "title": "Kanban board", "workflow": "Workflow setup", "columns": "Status columns",
+    "workflowHint": "Choose & order the status columns shown on this project's board",
+    "savedWorkflow": "Workflow saved", "moveNotAllowed": "Cannot move to this status",
+    "customerReview": "You can Close (accept) or Reopen (review) your own tickets",
+    "available": "Available statuses", "selectProject": "Select project"
+  },
+  "orgMgmt": {
+    "createOrg": "Create customer", "createProject": "Create project", "orgName": "Customer name",
+    "code": "Code", "customerPriority": "Customer priority", "projectPriority": "Project priority",
+    "projectName": "Project name", "createdOrg": "Customer created", "createdProject": "Project created"
   }
 }

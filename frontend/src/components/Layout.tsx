@@ -10,11 +10,12 @@ import { Role } from '../lib/types';
 
 const NAV: { to: string; icon: string; key: string; roles?: Role[] }[] = [
   { to: '/dashboard', icon: 'dashboard', key: 'nav.dashboard', roles: ['super_admin', 'csm', 'dev_lead', 'dev', 'gate', 'customer_admin'] },
+  { to: '/board', icon: 'template', key: 'nav.board' },
   { to: '/tickets', icon: 'ticket', key: 'nav.tickets' },
   { to: '/tickets/new', icon: 'plus', key: 'nav.createTicket' },
-  { to: '/templates', icon: 'template', key: 'nav.templates', roles: ['super_admin', 'csm'] },
+  { to: '/templates', icon: 'grip', key: 'nav.templates', roles: ['super_admin', 'csm'] },
   { to: '/reports', icon: 'report', key: 'nav.reports', roles: ['super_admin', 'csm', 'dev_lead', 'customer_admin'] },
-  { to: '/admin', icon: 'admin', key: 'nav.admin', roles: ['super_admin', 'csm'] },
+  { to: '/admin', icon: 'admin', key: 'nav.admin', roles: ['super_admin', 'csm', 'customer_admin'] },
 ];
 
 export function Layout() {
@@ -69,6 +70,9 @@ export function Layout() {
             {menuOpen && (
               <div className="dropdown-panel" style={{ top: 44, right: 0, width: 200 }}>
                 <div style={{ padding: '8px 10px', fontSize: 12, color: 'var(--text-secondary)' }}>{user?.email}</div>
+                <button className="sidebar-item" onClick={() => { setMenuOpen(false); navigate('/profile'); }} style={{ height: 36, fontSize: 12 }}>
+                  <span className="sidebar-icon"><Icon name="users" size={16} /></span> {t('profile.title')}
+                </button>
                 <button className="sidebar-item" onClick={logout} style={{ height: 36, fontSize: 12 }}>
                   <span className="sidebar-icon"><Icon name="logout" size={16} /></span> {t('common.logout')}
                 </button>

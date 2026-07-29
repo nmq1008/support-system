@@ -31,6 +31,11 @@ router.get(
       params.push(req.query.projectId);
       where.push(`id IN (SELECT user_id FROM user_project_access WHERE project_id = $${i++})`);
     }
+    // Customer Admin only sees users within their own org (their customers).
+    if (req.user!.role === 'customer_admin') {
+      params.push(req.user!.orgId);
+      where.push(`org_id = $${i++}`);
+    }
     const { rows } = await query(
       `SELECT id, name, email, role, org_id, language, avatar, active, created_at
        FROM users WHERE ${where.join(' AND ')} ORDER BY name`,

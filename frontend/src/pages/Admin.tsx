@@ -1,8 +1,9 @@
 import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { api } from '../lib/api';
-import { CustomerPriorityBadge, PriorityBadge } from '../components/Badges';
+import { CustomerPriorityBadge, PriorityBadge, ProjectPriorityBadge } from '../components/Badges';
 import { UserFormModal } from '../components/UserFormModal';
+import { OrgProjectModal } from '../components/OrgProjectModal';
 import { useAuth } from '../context/AuthContext';
 import { Icon } from '../components/Icon';
 
@@ -11,39 +12,54 @@ type Tab = 'sla' | 'orgs' | 'users';
 export function Admin() {
   const { t } = useTranslation();
   const { user } = useAuth();
-  const [tab, setTab] = useState<Tab>('sla');
+  const isCustomerAdmin = user?.role === 'customer_admin';
+  const canEditUsers = user?.role === 'super_admin' || user?.role === 'csm';
+  const canCreateUsers = canEditUsers || isCustomerAdmin;
+  const canManageOrgs = canEditUsers; // super_admin / csm
+
+  const [tab, setTab] = useState<Tab>(isCustomerAdmin ? 'users' : 'sla');
   const [sla, setSla] = useState<any>(null);
   const [orgs, setOrgs] = useState<any[]>([]);
   const [projects, setProjects] = useState<any[]>([]);
   const [users, setUsers] = useState<any[]>([]);
-  // undefined = closed · null = create · string = edit that user id
-  const [userModal, setUserModal] = useState<string | null | undefined>(undefined);
-
-  const canManageUsers = user?.role === 'super_admin' || user?.role === 'csm';
+  const [userModal, setUserModal] = useState<string | null | undefined>(undefined); // undefined=closed, null=create
+  const [orgModal, setOrgModal] = useState<'org' | 'project' | null>(null);
 
   function loadUsers() { api.get('/users').then((r) => setUsers(r.data.items)).catch(() => {}); }
-
-  useEffect(() => {
-    api.get('/admin/sla').then((r) => setSla(r.data)).catch(() => {});
+  function loadOrgs() {
     api.get('/orgs').then((r) => setOrgs(r.data.items)).catch(() => {});
     api.get('/projects').then((r) => setProjects(r.data.items)).catch(() => {});
+  }
+
+  useEffect(() => {
+    if (!isCustomerAdmin) api.get('/admin/sla').then((r) => setSla(r.data)).catch(() => {});
+    loadOrgs();
     loadUsers();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const TABS: { key: Tab; label: string }[] = [
-    { key: 'sla', label: t('nav.sla') },
-    { key: 'orgs', label: t('nav.orgs') },
-    { key: 'users', label: t('nav.users') },
-  ];
+  const TABS: { key: Tab; label: string }[] = isCustomerAdmin
+    ? [{ key: 'users', label: t('nav.users') }]
+    : [
+        { key: 'sla', label: t('nav.sla') },
+        { key: 'orgs', label: t('nav.orgs') },
+        { key: 'users', label: t('nav.users') },
+      ];
 
   return (
     <>
       <div className="page-header"><div className="page-title-row"><h1 className="page-title">{t('nav.admin')}</h1>
-        {tab === 'users' && canManageUsers && (
-          <div className="page-actions">
+        <div className="page-actions">
+          {tab === 'users' && canCreateUsers && (
             <button className="btn btn-primary btn-sm" onClick={() => setUserModal(null)}><Icon name="plus" size={16} /> {t('userMgmt.create')}</button>
-          </div>
-        )}
+          )}
+          {tab === 'orgs' && canManageOrgs && (
+            <>
+              <button className="btn btn-secondary btn-sm" onClick={() => setOrgModal('org')}><Icon name="plus" size={16} /> {t('orgMgmt.createOrg')}</button>
+              <button className="btn btn-primary btn-sm" onClick={() => setOrgModal('project')}><Icon name="plus" size={16} /> {t('orgMgmt.createProject')}</button>
+            </>
+          )}
+        </div>
       </div></div>
       <div className="content-scroll">
         <div style={{ display: 'flex', gap: 24, borderBottom: '1px solid var(--border)', marginBottom: 16 }}>
@@ -74,17 +90,17 @@ export function Admin() {
         )}
 
         {tab === 'orgs' && (
-          <div className="grid" style={{ gridTemplateColumns: 'repeat(auto-fill,minmax(260px,1fr))' }}>
+          <div className="grid" style={{ gridTemplateColumns: 'repeat(auto-fill,minmax(280px,1fr))' }}>
             {orgs.map((o) => (
               <div key={o.id} className="card">
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                   <b>{o.name}</b><CustomerPriorityBadge value={o.customer_priority} />
                 </div>
                 <div className="subline">{o.code} · {o.project_count} projects</div>
-                <div style={{ marginTop: 10, display: 'grid', gap: 4 }}>
+                <div style={{ marginTop: 10, display: 'grid', gap: 6 }}>
                   {projects.filter((p) => p.org_id === o.id).map((p) => (
-                    <div key={p.id} style={{ fontSize: 12, display: 'flex', justifyContent: 'space-between' }}>
-                      <span>{p.name} <span className="subline">({p.project_priority})</span></span>
+                    <div key={p.id} style={{ fontSize: 12, display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 6 }}>
+                      <span style={{ display: 'flex', alignItems: 'center', gap: 6 }}>{p.name} <ProjectPriorityBadge value={p.project_priority} /></span>
                       {p.jira_url && <span className="tag-chip" style={{ background: 'var(--color-primary-10)', color: 'var(--color-primary)' }}>Jira</span>}
                     </div>
                   ))}
@@ -106,12 +122,13 @@ export function Admin() {
                     <td><span className="tag-chip" style={{ background: 'var(--color-primary-10)', color: 'var(--color-primary)' }}>{t(`roles.${u.role}`)}</span></td>
                     <td>{u.language?.toUpperCase()}</td>
                     <td style={{ textAlign: 'right' }}>
-                      {canManageUsers && (
+                      {canEditUsers && (
                         <button className="btn btn-secondary btn-sm" onClick={() => setUserModal(u.id)}>{t('userMgmt.edit')}</button>
                       )}
                     </td>
                   </tr>
                 ))}
+                {users.length === 0 && <tr><td colSpan={5} style={{ textAlign: 'center', color: 'var(--text-muted)', padding: 30 }}>{t('common.noData')}</td></tr>}
               </tbody>
             </table>
           </div>
@@ -127,6 +144,9 @@ export function Admin() {
           onClose={() => setUserModal(undefined)}
           onSaved={loadUsers}
         />
+      )}
+      {orgModal && (
+        <OrgProjectModal mode={orgModal} orgs={orgs} onClose={() => setOrgModal(null)} onSaved={loadOrgs} />
       )}
     </>
   );

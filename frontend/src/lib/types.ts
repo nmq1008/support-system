@@ -17,6 +17,7 @@ export interface Ticket {
   status: TicketStatus; priority_level: PriorityLevel; category?: string;
   org_id: string; project_id: string; owner_id: string | null; customer_id: string | null;
   project_name?: string; org_name?: string; owner_name?: string; customer_name?: string;
+  project_priority?: string; customer_priority?: string;
   statusColor: string; priorityColor: string; escalated?: boolean; reopen_count?: number;
   jira_issue_id?: string | null; jira_issue_url?: string | null;
   created_at: string; updated_at?: string;
@@ -46,7 +47,7 @@ export interface Tag { id: string; name: string; color: string; }
 export interface Attachment { id: string; file_url: string; file_name: string; file_size: number; mime_type?: string; }
 
 export interface Org { id: string; name: string; code: string; customer_priority: string; project_count?: number; }
-export interface Project { id: string; org_id: string; name: string; code: string; project_priority: string; org_name?: string; jira_url?: string; jira_key?: string; active: boolean; }
+export interface Project { id: string; org_id: string; name: string; code: string; project_priority: string; org_name?: string; jira_url?: string; jira_key?: string; board_columns?: string[]; active: boolean; }
 export interface User { id: string; name: string; email: string; role: Role; language: string; }
 
 export interface TemplateField {

@@ -3,7 +3,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { api, apiError } from '../lib/api';
 import { TicketDetail, TicketStatus, User } from '../lib/types';
-import { PriorityBadge, StatusBadge } from '../components/Badges';
+import { CustomerPriorityBadge, PriorityBadge, ProjectPriorityBadge, StatusBadge } from '../components/Badges';
 import { Avatar, Skeleton } from '../components/Avatar';
 import { Icon } from '../components/Icon';
 import { StatusChangeModal } from '../components/StatusChangeModal';
@@ -103,6 +103,8 @@ export function TicketDetailPage() {
               <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', marginBottom: 12 }}>
                 <StatusBadge status={ticket.status} />
                 <PriorityBadge level={ticket.priority_level} />
+                {(ticket as any).project_priority && <ProjectPriorityBadge value={(ticket as any).project_priority} />}
+                {(ticket as any).customer_priority && <CustomerPriorityBadge value={(ticket as any).customer_priority} />}
                 {ticket.escalated && <span className="tag-chip" style={{ background: '#FEE2E2', color: '#DC2626' }}>{t('ticket.escalated')}</span>}
                 {ticket.sla.breached && <span className="tag-chip" style={{ background: '#FEE2E2', color: '#DC2626' }}>{t('ticket.slaBreached')}</span>}
                 {ticket.tags.map((tg) => <span key={tg.id} className="tag-chip" style={{ background: `${tg.color}22`, color: tg.color }}>#{tg.name}</span>)}

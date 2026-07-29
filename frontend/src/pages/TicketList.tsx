@@ -3,7 +3,7 @@ import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { api } from '../lib/api';
 import { Paginated, Ticket, TicketStatus } from '../lib/types';
-import { PriorityBadge, StatusBadge } from '../components/Badges';
+import { CustomerPriorityBadge, PriorityBadge, ProjectPriorityBadge, StatusBadge } from '../components/Badges';
 import { Avatar, Skeleton } from '../components/Avatar';
 import { Icon } from '../components/Icon';
 import { formatDate } from '../lib/format';
@@ -105,7 +105,10 @@ export function TicketList() {
                     <b>{tk.code}</b> {tk.escalated && <span className="tag-chip" style={{ background: '#FEE2E2', color: '#DC2626' }}>ESC</span>}
                     <div className="subline">{tk.title}</div>
                   </td>
-                  <td>{tk.project_name}<div className="subline">{tk.org_name}</div></td>
+                  <td>
+                    <span style={{ display: 'flex', alignItems: 'center', gap: 6 }}>{tk.project_name} {tk.project_priority && <ProjectPriorityBadge value={tk.project_priority} />}</span>
+                    <div className="subline" style={{ display: 'flex', alignItems: 'center', gap: 6 }}>{tk.org_name} {tk.customer_priority && <CustomerPriorityBadge value={tk.customer_priority} />}</div>
+                  </td>
                   <td><PriorityBadge level={tk.priority_level} /></td>
                   <td>{tk.owner_name ? <span style={{ display: 'flex', alignItems: 'center', gap: 6 }}><Avatar name={tk.owner_name} size={24} />{tk.owner_name}</span> : <span style={{ color: 'var(--text-muted)' }}>{t('common.unassigned')}</span>}</td>
                   <td><StatusBadge status={tk.status} /></td>

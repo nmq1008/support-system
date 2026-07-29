@@ -14,7 +14,7 @@
     "status": "Trạng thái", "unassigned": "Chưa giao", "page": "Trang"
   },
   "nav": {
-    "dashboard": "Dashboard", "tickets": "Danh sách ticket", "createTicket": "Tạo ticket",
+    "dashboard": "Dashboard", "board": "Bảng Kanban", "tickets": "Danh sách ticket", "createTicket": "Tạo ticket",
     "templates": "Mẫu ticket", "reports": "Báo cáo", "admin": "Quản trị",
     "orgs": "Khách hàng & Dự án", "users": "Người dùng", "sla": "Cấu hình SLA"
   },
@@ -73,6 +73,7 @@
     }
   },
   "notif": { "title": "Thông báo", "empty": "Không có thông báo mới", "markAll": "Đánh dấu đã đọc tất cả" },
+  "notifTypes": { "ticket_created": "Tạo ticket", "status_changed": "Đổi trạng thái", "assigned": "Được giao ticket", "sla_warning": "Cảnh báo SLA", "comment": "Bình luận mới", "mention": "Được nhắc đến", "ticket_resolved": "Ticket xử lý xong" },
   "userMgmt": {
     "create": "Tạo user", "edit": "Phân quyền", "name": "Họ tên", "role": "Vai trò",
     "language": "Ngôn ngữ", "active": "Đang hoạt động", "password": "Mật khẩu",
@@ -80,5 +81,23 @@
     "assignHint": "Chọn dự án để user có thể điều phối/xử lý ticket",
     "created": "Đã tạo user", "updated": "Đã cập nhật user", "homeOrg": "Org của khách hàng",
     "selectProjects": "Chọn dự án…", "noAccess": "Chưa gán quyền dự án nào"
+  },
+  "profile": {
+    "title": "Hồ sơ cá nhân", "info": "Thông tin", "changePassword": "Đổi mật khẩu",
+    "current": "Mật khẩu hiện tại", "new": "Mật khẩu mới", "confirm": "Xác nhận mật khẩu mới",
+    "mismatch": "Mật khẩu xác nhận không khớp", "changed": "Đã đổi mật khẩu",
+    "notifPrefs": "Tùy chọn thông báo", "saved": "Đã lưu"
+  },
+  "board": {
+    "title": "Bảng Kanban", "workflow": "Cấu hình workflow", "columns": "Cột trạng thái",
+    "workflowHint": "Chọn & sắp xếp các cột trạng thái hiển thị trên bảng của dự án này",
+    "savedWorkflow": "Đã lưu workflow", "moveNotAllowed": "Không thể chuyển sang trạng thái này",
+    "customerReview": "Bạn có thể Đóng (xác nhận) hoặc Mở lại (đánh giá) ticket của mình",
+    "available": "Trạng thái có thể thêm", "selectProject": "Chọn dự án"
+  },
+  "orgMgmt": {
+    "createOrg": "Tạo khách hàng", "createProject": "Tạo dự án", "orgName": "Tên khách hàng",
+    "code": "Mã", "customerPriority": "Ưu tiên khách hàng", "projectPriority": "Ưu tiên dự án",
+    "projectName": "Tên dự án", "createdOrg": "Đã tạo khách hàng", "createdProject": "Đã tạo dự án"
   }
 }

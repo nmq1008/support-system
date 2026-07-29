@@ -14,7 +14,7 @@
     "status": "Status", "unassigned": "Unassigned", "page": "Page"
   },
   "nav": {
-    "dashboard": "Dashboard", "tickets": "Tickets", "createTicket": "Create ticket",
+    "dashboard": "Dashboard", "board": "Kanban board", "tickets": "Tickets", "createTicket": "Create ticket",
     "templates": "Templates", "reports": "Reports", "admin": "Admin",
     "orgs": "Customers & Projects", "users": "Users", "sla": "SLA config"
   },
@@ -73,6 +73,7 @@
     }
   },
   "notif": { "title": "Notifications", "empty": "No new notifications", "markAll": "Mark all as read" },
+  "notifTypes": { "ticket_created": "Ticket created", "status_changed": "Status changed", "assigned": "Assigned to me", "sla_warning": "SLA warning", "comment": "New comment", "mention": "Mentioned", "ticket_resolved": "Ticket resolved" },
   "userMgmt": {
     "create": "Create user", "edit": "Access", "name": "Full name", "role": "Role",
     "language": "Language", "active": "Active", "password": "Password",
@@ -80,5 +81,23 @@
     "assignHint": "Pick projects so this user can coordinate / handle tickets",
     "created": "User created", "updated": "User updated", "homeOrg": "Customer's org",
     "selectProjects": "Select projects…", "noAccess": "No project access assigned"
+  },
+  "profile": {
+    "title": "My profile", "info": "Information", "changePassword": "Change password",
+    "current": "Current password", "new": "New password", "confirm": "Confirm new password",
+    "mismatch": "Passwords do not match", "changed": "Password changed",
+    "notifPrefs": "Notification preferences", "saved": "Saved"
+  },
+  "board": {
+    "title": "Kanban board", "workflow": "Workflow setup", "columns": "Status columns",
+    "workflowHint": "Choose & order the status columns shown on this project's board",
+    "savedWorkflow": "Workflow saved", "moveNotAllowed": "Cannot move to this status",
+    "customerReview": "You can Close (accept) or Reopen (review) your own tickets",
+    "available": "Available statuses", "selectProject": "Select project"
+  },
+  "orgMgmt": {
+    "createOrg": "Create customer", "createProject": "Create project", "orgName": "Customer name",
+    "code": "Code", "customerPriority": "Customer priority", "projectPriority": "Project priority",
+    "projectName": "Project name", "createdOrg": "Customer created", "createdProject": "Project created"
   }
 }

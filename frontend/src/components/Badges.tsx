@@ -31,3 +31,15 @@ export function CustomerPriorityBadge({ value }: { value: string }) {
     </span>
   );
 }
+
+const PROJECT_PRIORITY_COLOR: Record<string, string> = {
+  critical: '#DC2626', high: '#F97316', medium: '#2563EB', low: '#64748B',
+};
+export function ProjectPriorityBadge({ value }: { value: string }) {
+  if (!value) return null;
+  return (
+    <span className="tag-chip" style={{ background: `${PROJECT_PRIORITY_COLOR[value] || '#64748B'}22`, color: PROJECT_PRIORITY_COLOR[value] || '#64748B', textTransform: 'capitalize' }}>
+      {value}
+    </span>
+  );
+}

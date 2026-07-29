@@ -129,8 +129,8 @@ export async function listTickets(user: AuthUser, filters: ListFilters, page: Pa
 
   params.push(page.pageSize, page.offset);
   const rows = await query<TicketRow>(
-    `SELECT t.*, p.name AS project_name, o.name AS org_name,
-            ow.name AS owner_name, cu.name AS customer_name
+    `SELECT t.*, p.name AS project_name, p.project_priority, o.name AS org_name,
+            o.customer_priority, ow.name AS owner_name, cu.name AS customer_name
      FROM tickets t
      JOIN projects p ON p.id = t.project_id
      JOIN organizations o ON o.id = t.org_id
@@ -156,7 +156,7 @@ export async function getTicketDetail(user: AuthUser, id: string) {
 
   const [enriched, fields, comments, history, tags, attachments] = await Promise.all([
     query<TicketRow>(
-      `SELECT t.*, p.name AS project_name, p.code AS project_code, p.jira_url, p.jira_key,
+      `SELECT t.*, p.name AS project_name, p.code AS project_code, p.project_priority, p.jira_url, p.jira_key,
               o.name AS org_name, o.customer_priority, ow.name AS owner_name, cu.name AS customer_name
        FROM tickets t
        JOIN projects p ON p.id = t.project_id
@@ -419,6 +419,13 @@ export async function changeStatus(user: AuthUser, id: string, input: StatusChan
   const row = await loadRow(id);
   if (!row) throw notFound('Ticket không tồn tại');
   if (!canManageTicket(user, row)) throw forbidden('Bạn không có quyền đổi trạng thái ticket này');
+
+  // Customers participate only in the REVIEW/evaluation step of the workflow:
+  // họ có thể Đóng (xác nhận đạt) hoặc Mở lại (đánh giá chưa đạt) ticket của mình,
+  // không được điều khiển các bước xử lý nội bộ (build/testing/deploy…).
+  if (user.role === 'customer' && !['close', 'reopen'].includes(input.status)) {
+    throw forbidden('Khách hàng chỉ có thể Đóng (xác nhận) hoặc Mở lại (đánh giá) ticket');
+  }
 
   // Validates transition legality + mandatory meta (Waiting/On Hold/Reopen/Deploy).
   assertTransition({ from: row.status, to: input.status, meta: input.meta });

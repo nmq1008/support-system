@@ -7,13 +7,15 @@ import { REQUIRED_META, TRANSITIONS } from '../lib/statusFlow';
 
 interface Props {
   current: TicketStatus;
+  /** When set, skip the status picker and go straight to meta/note for this target. */
+  forcedTarget?: TicketStatus;
   onClose: () => void;
   onSubmit: (status: TicketStatus, note: string, meta: Record<string, string>) => Promise<void>;
 }
 
-export function StatusChangeModal({ current, onClose, onSubmit }: Props) {
+export function StatusChangeModal({ current, forcedTarget, onClose, onSubmit }: Props) {
   const { t } = useTranslation();
-  const [target, setTarget] = useState<TicketStatus | ''>('');
+  const [target, setTarget] = useState<TicketStatus | ''>(forcedTarget || '');
   const [note, setNote] = useState('');
   const [meta, setMeta] = useState<Record<string, string>>({});
   const [saving, setSaving] = useState(false);
@@ -38,13 +40,19 @@ export function StatusChangeModal({ current, onClose, onSubmit }: Props) {
 
   return (
     <Modal title={t('ticket.changeStatus')} onClose={onClose}>
-      <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', marginBottom: 16 }}>
-        {options.map((s) => (
-          <button key={s} onClick={() => { setTarget(s); setMeta({}); }} style={{ border: target === s ? '2px solid var(--color-primary)' : '1px solid var(--border)', borderRadius: 8, padding: 4, background: 'transparent' }}>
-            <StatusBadge status={s} />
-          </button>
-        ))}
-      </div>
+      {forcedTarget ? (
+        <div style={{ display: 'flex', gap: 8, alignItems: 'center', marginBottom: 16 }}>
+          <StatusBadge status={current} /> <span>→</span> <StatusBadge status={forcedTarget} />
+        </div>
+      ) : (
+        <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', marginBottom: 16 }}>
+          {options.map((s) => (
+            <button key={s} onClick={() => { setTarget(s); setMeta({}); }} style={{ border: target === s ? '2px solid var(--color-primary)' : '1px solid var(--border)', borderRadius: 8, padding: 4, background: 'transparent' }}>
+              <StatusBadge status={s} />
+            </button>
+          ))}
+        </div>
+      )}
 
       {required.length > 0 && (
         <div style={{ background: 'var(--color-primary-10)', padding: 12, borderRadius: 8, marginBottom: 12 }}>

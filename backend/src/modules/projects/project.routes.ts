@@ -6,7 +6,7 @@ import { validateBody } from '../../middleware/validate';
 import { requireRole, ADMIN_ROLES } from '../../middleware/rbac';
 import { query } from '../../config/db';
 import { plainText } from '../../utils/sanitize';
-import { PROJECT_PRIORITIES } from '../../domain/types';
+import { PROJECT_PRIORITIES, TICKET_STATUSES } from '../../domain/types';
 import { AuthUser } from '../../types/express';
 
 const router = Router();
@@ -42,7 +42,8 @@ router.get(
       extra = `AND p.org_id = $${params.length}`;
     }
     const { rows } = await query(
-      `SELECT p.id, p.org_id, p.name, p.code, p.project_priority, p.jira_url, p.jira_key, ${tokenCol}, p.active, p.created_at,
+      `SELECT p.id, p.org_id, p.name, p.code, p.project_priority, p.jira_url, p.jira_key, ${tokenCol},
+              p.board_columns, p.active, p.created_at,
               o.name AS org_name, o.customer_priority
        FROM projects p JOIN organizations o ON o.id = p.org_id
        WHERE ${s.clause} ${extra} ORDER BY p.name`,
@@ -99,6 +100,33 @@ router.patch(
     if (!fields.length) return res.json({ ok: true });
     params.push(req.params.id);
     const { rows } = await query(`UPDATE projects SET ${fields.join(', ')} WHERE id = $${i} RETURNING *`, params);
+    res.json(rows[0]);
+  })
+);
+
+/**
+ * Self-service workflow setup: choose & order the Kanban board columns for a
+ * project. Only valid ticket statuses are accepted; transitions still follow
+ * the global state-machine.
+ */
+router.patch(
+  '/:id/workflow',
+  requireRole(...ADMIN_ROLES),
+  validateBody(
+    z.object({
+      boardColumns: z
+        .array(z.enum(TICKET_STATUSES as [string, ...string[]]))
+        .min(2)
+        .max(13),
+    })
+  ),
+  asyncHandler(async (req, res) => {
+    // de-duplicate while preserving order
+    const cols = [...new Set(req.body.boardColumns)];
+    const { rows } = await query(
+      `UPDATE projects SET board_columns = $1::jsonb WHERE id = $2 RETURNING id, board_columns`,
+      [JSON.stringify(cols), req.params.id]
+    );
     res.json(rows[0]);
   })
 );
