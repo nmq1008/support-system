@@ -31,6 +31,7 @@ export const env = {
 
   runMigrations: bool(process.env.RUN_MIGRATIONS, false),
   runSeed: bool(process.env.RUN_SEED, false),
+  runDemoSeed: bool(process.env.RUN_DEMO_SEED, false),
 
   uploadDir: process.env.UPLOAD_DIR || './uploads',
   maxUploadMb: num(process.env.MAX_UPLOAD_MB, 20),

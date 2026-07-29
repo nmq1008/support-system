@@ -101,11 +101,21 @@ const TAGS: [string, string][] = [
   ['mobile', '#059669'], ['performance', '#DB2777'], ['security', '#B91C1C'], ['ux', '#0891B2'],
 ];
 
-async function main() {
+async function main(opts: { skipIfSeeded?: boolean } = {}) {
   await runMigrations();
   const hash = await bcrypt.hash(PASSWORD, 10);
 
   await withTransaction(async (c) => {
+    // Idempotency guard for auto-seeding (e.g. docker compose): only build the
+    // dataset once — restarts must NOT wipe an already-populated database.
+    if (opts.skipIfSeeded) {
+      const { rows } = await c.query<{ n: string }>('SELECT count(*)::int AS n FROM organizations');
+      if (Number(rows[0].n) >= 25) {
+        // eslint-disable-next-line no-console
+        console.log(`[demo] already seeded (${rows[0].n} orgs) — skipping`);
+        return;
+      }
+    }
     // eslint-disable-next-line no-console
     console.log('[demo] truncating existing data…');
     await c.query(`TRUNCATE ticket_reviews, ticket_assignees, ticket_tags, tags, notifications,

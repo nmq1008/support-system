@@ -4,13 +4,23 @@ import { env } from './config/env';
 import { pool } from './config/db';
 import { runMigrations } from './db/migrate';
 import { seed } from './db/seed';
+import { demoSeed } from './db/demo-seed';
 import { initRealtime } from './realtime/io';
 
 async function bootstrap() {
   if (env.runMigrations) {
     await runMigrations();
   }
-  if (env.runSeed) {
+  // RUN_DEMO_SEED takes precedence: builds the 30-org operating dataset once
+  // (idempotent — skips if the DB already has data). Otherwise the small seed.
+  if (env.runDemoSeed) {
+    try {
+      await demoSeed({ skipIfSeeded: true });
+    } catch (err) {
+      // eslint-disable-next-line no-console
+      console.warn('[demo-seed] skipped/failed:', (err as Error).message);
+    }
+  } else if (env.runSeed) {
     try {
       await seed();
     } catch (err) {

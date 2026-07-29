@@ -35,7 +35,11 @@ services:
       DATABASE_URL: postgres://${PGUSER:-hidesk}:${PGPASSWORD:-hidesk}@postgres:5432/${PGDATABASE:-hidesk}
       REDIS_URL: redis://redis:6379
       RUN_MIGRATIONS: 'true'
-      RUN_SEED: 'true'
+      # Auto-load the 30-organization operating dataset on first boot.
+      # Idempotent: skips if the DB is already populated (restarts won't wipe data).
+      # Set RUN_DEMO_SEED=false + RUN_SEED=true for the small starter dataset instead.
+      RUN_DEMO_SEED: ${RUN_DEMO_SEED:-true}
+      RUN_SEED: ${RUN_SEED:-false}
     depends_on:
       postgres:
         condition: service_healthy
