@@ -50,7 +50,16 @@
     "slaBreached": "SLA breached", "slaAtRisk": "SLA at risk", "escalated": "Escalated",
     "jira": "Jira", "jiraGuide": "Create Jira Issue — Guide", "jiraLink": "Link Jira Issue",
     "reopenCount": "Reopen count", "duplicateWarning": "Warning: a similar ticket already exists",
-    "assignOwner": "Assign owner", "empty": "No tickets yet", "firstResponse": "First response"
+    "assignOwner": "Assign owner", "empty": "No tickets yet", "firstResponse": "First response",
+    "assignees": "Assignees (multiple devs)", "addAssignee": "Add dev", "attachMedia": "Attach image/video",
+    "review": "Quality review", "reviewDev": "Pick a dev to review", "rating": "Overall",
+    "quality": "Quality", "timeliness": "Timeliness", "reviewNote": "Notes",
+    "submitReview": "Submit review", "reviewedBy": "Reviewed by", "reviewOnlyDone": "Reviews are available once the ticket is done",
+    "noReviews": "No reviews yet"
+  },
+  "devPerf": {
+    "title": "Staff evaluation", "avgRating": "Avg rating", "reviews": "Reviews",
+    "resolved": "Resolved", "open": "Open", "breached": "SLA breached", "quality": "Quality", "timeliness": "Timeliness"
   },
   "status": {
     "null": "Null", "open": "Open", "in_progress": "In Progress", "build": "Build",

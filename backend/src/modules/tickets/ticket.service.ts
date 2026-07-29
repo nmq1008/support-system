@@ -130,7 +130,10 @@ export async function listTickets(user: AuthUser, filters: ListFilters, page: Pa
   params.push(page.pageSize, page.offset);
   const rows = await query<TicketRow>(
     `SELECT t.*, p.name AS project_name, p.project_priority, o.name AS org_name,
-            o.customer_priority, ow.name AS owner_name, cu.name AS customer_name
+            o.customer_priority, ow.name AS owner_name, cu.name AS customer_name,
+            COALESCE((SELECT json_agg(json_build_object('id', u.id, 'name', u.name))
+                      FROM ticket_assignees ta JOIN users u ON u.id = ta.user_id
+                      WHERE ta.ticket_id = t.id), '[]') AS assignees
      FROM tickets t
      JOIN projects p ON p.id = t.project_id
      JOIN organizations o ON o.id = t.org_id
@@ -154,7 +157,7 @@ export async function getTicketDetail(user: AuthUser, id: string) {
   if (!base) throw notFound('Ticket không tồn tại');
   if (!canViewTicket(user, base)) throw forbidden('Bạn không có quyền xem ticket này');
 
-  const [enriched, fields, comments, history, tags, attachments] = await Promise.all([
+  const [enriched, fields, comments, history, tags, attachments, assignees, reviews] = await Promise.all([
     query<TicketRow>(
       `SELECT t.*, p.name AS project_name, p.code AS project_code, p.project_priority, p.jira_url, p.jira_key,
               o.name AS org_name, o.customer_priority, ow.name AS owner_name, cu.name AS customer_name
@@ -187,15 +190,36 @@ export async function getTicketDetail(user: AuthUser, id: string) {
       [id]
     ),
     query('SELECT * FROM attachments WHERE ticket_id = $1 ORDER BY created_at ASC', [id]),
+    query(
+      `SELECT u.id, u.name FROM ticket_assignees ta JOIN users u ON u.id = ta.user_id
+       WHERE ta.ticket_id = $1 ORDER BY u.name`,
+      [id]
+    ),
+    query(
+      `SELECT r.*, rv.name AS reviewer_name, dv.name AS dev_name FROM ticket_reviews r
+       LEFT JOIN users rv ON rv.id = r.reviewer_id
+       LEFT JOIN users dv ON dv.id = r.dev_id
+       WHERE r.ticket_id = $1 ORDER BY r.created_at DESC`,
+      [id]
+    ),
   ]);
+
+  // Attach comment-level media to their comments.
+  const commentAttachments = attachments.rows.filter((a: any) => a.comment_id);
+  const commentRows = comments.rows.map((c: any) => ({
+    ...c,
+    attachments: commentAttachments.filter((a: any) => a.comment_id === c.id),
+  }));
 
   return {
     ...serializeTicket(enriched.rows[0] as any),
     fields: fields.rows,
-    comments: comments.rows,
+    comments: commentRows,
     history: history.rows,
     tags: tags.rows,
-    attachments: attachments.rows,
+    attachments: attachments.rows.filter((a: any) => !a.comment_id),
+    assignees: assignees.rows,
+    reviews: reviews.rows,
   };
 }
 
@@ -500,6 +524,42 @@ export async function changeStatus(user: AuthUser, id: string, input: StatusChan
   });
   emitDashboard('ticket:changed', { id });
   await cacheInvalidate('dashboard:*');
+  return getTicketDetail(user, id);
+}
+
+/** Set the collaborating dev assignees for a ticket (staff only). Notifies newly added. */
+export async function setAssignees(user: AuthUser, id: string, userIds: string[]) {
+  const row = await loadRow(id);
+  if (!row) throw notFound('Ticket không tồn tại');
+  if (!canManageTicket(user, row)) throw forbidden('Bạn không có quyền gán người xử lý');
+
+  const existing = await query<{ user_id: string }>('SELECT user_id FROM ticket_assignees WHERE ticket_id = $1', [id]);
+  const before = new Set(existing.rows.map((r) => r.user_id));
+  const after = new Set(userIds);
+
+  await withTransaction(async (c) => {
+    await c.query('DELETE FROM ticket_assignees WHERE ticket_id = $1', [id]);
+    for (const uid of userIds) {
+      await c.query('INSERT INTO ticket_assignees(ticket_id, user_id) VALUES ($1,$2) ON CONFLICT DO NOTHING', [id, uid]);
+    }
+    await c.query(
+      `INSERT INTO ticket_history(ticket_id, changed_by, action, field, new_value, note)
+       VALUES ($1,$2,'assignees','assignees',$3,'Cập nhật danh sách người xử lý')`,
+      [id, user.id, String(userIds.length)]
+    );
+  });
+
+  // Notify newly added assignees.
+  const added = userIds.filter((u) => !before.has(u));
+  await notifyMany(added, {
+    ticketId: id,
+    type: 'assigned',
+    title: 'Bạn được thêm vào ticket',
+    message: `${row.code}: ${row.title}`,
+    emailMeta: { code: row.code, title: row.title },
+  });
+  void after;
+  emitDashboard('ticket:changed', { id });
   return getTicketDetail(user, id);
 }
 

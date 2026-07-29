@@ -12,6 +12,7 @@ import {
   findDuplicates,
   getTicketDetail,
   listTickets,
+  setAssignees,
   updateTicket,
 } from './ticket.service';
 import { buildJiraGuide, linkJiraIssue } from './jira.controller';
@@ -134,6 +135,15 @@ router.post(
   ),
   asyncHandler(async (req, res) => {
     res.json(await changeStatus(req.user!, req.params.id, req.body));
+  })
+);
+
+/** Set collaborating dev assignees (multiple devs per issue). */
+router.put(
+  '/:id/assignees',
+  validateBody(z.object({ userIds: z.array(z.string().uuid()) })),
+  asyncHandler(async (req, res) => {
+    res.json(await setAssignees(req.user!, req.params.id, req.body.userIds));
   })
 );
 

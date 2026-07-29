@@ -18,6 +18,7 @@ export interface Ticket {
   org_id: string; project_id: string; owner_id: string | null; customer_id: string | null;
   project_name?: string; org_name?: string; owner_name?: string; customer_name?: string;
   project_priority?: string; customer_priority?: string;
+  assignees?: { id: string; name: string }[];
   statusColor: string; priorityColor: string; escalated?: boolean; reopen_count?: number;
   jira_issue_id?: string | null; jira_issue_url?: string | null;
   created_at: string; updated_at?: string;
@@ -31,12 +32,20 @@ export interface TicketDetail extends Ticket {
   history: HistoryItem[];
   tags: Tag[];
   attachments: Attachment[];
+  assignees: { id: string; name: string }[];
+  reviews: Review[];
+}
+
+export interface Review {
+  id: string; ticket_id: string; reviewer_id: string | null; dev_id: string;
+  rating: number; quality?: number | null; timeliness?: number | null;
+  comment?: string | null; created_at: string; reviewer_name?: string; dev_name?: string;
 }
 
 export interface Comment {
   id: string; ticket_id: string; user_id: string | null; content: string;
   is_internal: boolean; mentions: string[]; created_at: string;
-  user_name?: string; user_avatar?: string;
+  user_name?: string; user_avatar?: string; attachments?: Attachment[];
 }
 export interface HistoryItem {
   id: string; action: string; old_status?: string; new_status?: string;

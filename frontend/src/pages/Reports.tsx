@@ -3,12 +3,18 @@ import { useTranslation } from 'react-i18next';
 import { api, getToken } from '../lib/api';
 import { Icon } from '../components/Icon';
 import { Gauge } from '../components/Charts';
+import { StarRating } from '../components/StarRating';
+import { Avatar } from '../components/Avatar';
 
 export function Reports() {
   const { t } = useTranslation();
   const [summary, setSummary] = useState<any[]>([]);
+  const [devPerf, setDevPerf] = useState<any[]>([]);
 
-  useEffect(() => { api.get('/reports/summary').then((r) => setSummary(r.data.items)).catch(() => {}); }, []);
+  useEffect(() => {
+    api.get('/reports/summary').then((r) => setSummary(r.data.items)).catch(() => {});
+    api.get('/reports/dev-performance').then((r) => setDevPerf(r.data.items)).catch(() => {});
+  }, []);
 
   function exportExcel() {
     // Token is sent via query since it's a direct download; simplest is fetch+blob.
@@ -62,6 +68,34 @@ export function Reports() {
             })}
           </div>
         )}
+
+        {/* Dev performance scorecard */}
+        <h3 className="card-title" style={{ marginTop: 24 }}>⭐ {t('devPerf.title')}</h3>
+        <div className="card" style={{ padding: 0, overflow: 'hidden' }}>
+          <table className="table">
+            <thead><tr>
+              <th>{t('userMgmt.name')}</th>
+              <th>{t('devPerf.avgRating')}</th>
+              <th style={{ textAlign: 'right' }}>{t('devPerf.reviews')}</th>
+              <th style={{ textAlign: 'right' }}>{t('devPerf.resolved')}</th>
+              <th style={{ textAlign: 'right' }}>{t('devPerf.open')}</th>
+              <th style={{ textAlign: 'right' }}>{t('devPerf.breached')}</th>
+            </tr></thead>
+            <tbody>
+              {devPerf.map((d) => (
+                <tr key={d.id} style={{ cursor: 'default' }}>
+                  <td><span style={{ display: 'flex', alignItems: 'center', gap: 8 }}><Avatar name={d.name} size={26} /><span><b>{d.name}</b><div className="subline">{t(`roles.${d.role}`)}</div></span></span></td>
+                  <td>{d.avg_rating != null ? <span style={{ display: 'flex', alignItems: 'center', gap: 6 }}><StarRating value={Math.round(Number(d.avg_rating))} readOnly size={14} /> <b>{Number(d.avg_rating).toFixed(1)}</b></span> : <span className="subline">—</span>}</td>
+                  <td style={{ textAlign: 'right' }}>{d.review_count}</td>
+                  <td style={{ textAlign: 'right' }}>{d.resolved_count}</td>
+                  <td style={{ textAlign: 'right' }}>{d.open_count}</td>
+                  <td style={{ textAlign: 'right', color: d.breached_count ? 'var(--error)' : 'inherit' }}>{d.breached_count}</td>
+                </tr>
+              ))}
+              {devPerf.length === 0 && <tr><td colSpan={6} style={{ textAlign: 'center', color: 'var(--text-muted)', padding: 24 }}>{t('common.noData')}</td></tr>}
+            </tbody>
+          </table>
+        </div>
       </div>
     </>
   );

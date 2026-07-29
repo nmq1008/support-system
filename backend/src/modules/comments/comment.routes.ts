@@ -41,6 +41,7 @@ const createSchema = z.object({
   content: z.string().min(1).max(20000),
   isInternal: z.boolean().optional(),
   mentions: z.array(z.string().uuid()).optional(),
+  attachmentIds: z.array(z.string().uuid()).optional(),
 });
 
 /** Add a comment. Only staff can post internal comments. */
@@ -59,6 +60,18 @@ router.post(
        VALUES ($1,$2,$3,$4,$5) RETURNING *`,
       [ticket.id, req.user!.id, richText(req.body.content), isInternal, mentions]
     );
+
+    // Link any pre-uploaded attachments (images/videos) to this comment.
+    const attachmentIds = req.body.attachmentIds || [];
+    let commentAttachments: any[] = [];
+    if (attachmentIds.length) {
+      const linked = await query(
+        `UPDATE attachments SET comment_id = $1
+         WHERE id = ANY($2) AND ticket_id = $3 RETURNING *`,
+        [rows[0].id, attachmentIds, ticket.id]
+      );
+      commentAttachments = linked.rows;
+    }
 
     // @mention notifications
     if (mentions.length) {
@@ -83,7 +96,7 @@ router.post(
       }
     }
 
-    res.status(201).json(rows[0]);
+    res.status(201).json({ ...rows[0], attachments: commentAttachments });
   })
 );
 

@@ -4,10 +4,11 @@ import { useTranslation } from 'react-i18next';
 import { api, apiError } from '../lib/api';
 import { TicketDetail, TicketStatus, User } from '../lib/types';
 import { CustomerPriorityBadge, PriorityBadge, ProjectPriorityBadge, StatusBadge } from '../components/Badges';
-import { Avatar, Skeleton } from '../components/Avatar';
+import { Avatar, AvatarStack, Skeleton } from '../components/Avatar';
 import { Icon } from '../components/Icon';
 import { StatusChangeModal } from '../components/StatusChangeModal';
 import { JiraGuideModal } from '../components/JiraGuideModal';
+import { ReviewPanel } from '../components/ReviewPanel';
 import { useAuth } from '../context/AuthContext';
 import { useToast } from '../context/ToastContext';
 import { formatDate, relativeTime } from '../lib/format';
@@ -26,6 +27,8 @@ export function TicketDetailPage() {
   const [comment, setComment] = useState('');
   const [internal, setInternal] = useState(false);
   const [owners, setOwners] = useState<User[]>([]);
+  const [stagedFiles, setStagedFiles] = useState<File[]>([]);
+  const [editAssignees, setEditAssignees] = useState(false);
   const isStaff = user && STAFF_ROLES.includes(user.role);
 
   async function load() {
@@ -55,12 +58,34 @@ export function TicketDetailPage() {
     load();
   }
 
+  async function uploadFiles(files: File[]): Promise<string[]> {
+    const ids: string[] = [];
+    for (const file of files) {
+      const fd = new FormData();
+      fd.append('file', file);
+      const r = await api.post(`/tickets/${id}/attachments`, fd, { headers: { 'Content-Type': 'multipart/form-data' } });
+      ids.push(r.data.id);
+    }
+    return ids;
+  }
+
   async function postComment() {
-    if (!comment.trim()) return;
-    // naive @mention: match @word against owners list
-    const mentions = owners.filter((o) => comment.includes('@' + o.name.split(' ').pop())).map((o) => o.id);
-    await api.post(`/tickets/${id}/comments`, { content: comment, isInternal: internal, mentions });
-    setComment('');
+    if (!comment.trim() && stagedFiles.length === 0) return;
+    try {
+      const attachmentIds = stagedFiles.length ? await uploadFiles(stagedFiles) : [];
+      // naive @mention: match @word against owners list
+      const mentions = owners.filter((o) => comment.includes('@' + o.name.split(' ').pop())).map((o) => o.id);
+      await api.post(`/tickets/${id}/comments`, {
+        content: comment || '(đính kèm)', isInternal: internal, mentions, attachmentIds,
+      });
+      setComment('');
+      setStagedFiles([]);
+      load();
+    } catch (e) { toast(apiError(e), 'error'); }
+  }
+
+  async function saveAssignees(ids: string[]) {
+    await api.put(`/tickets/${id}/assignees`, { userIds: ids });
     load();
   }
 
@@ -153,18 +178,47 @@ export function TicketDetailPage() {
                         <span style={{ color: 'var(--text-muted)' }}>{relativeTime(c.created_at, i18n.language)}</span>
                       </div>
                       <div style={{ fontSize: 12, marginTop: 2 }} dangerouslySetInnerHTML={{ __html: c.content }} />
+                      {c.attachments && c.attachments.length > 0 && (
+                        <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', marginTop: 8 }}>
+                          {c.attachments.map((a) => (
+                            (a.mime_type || '').startsWith('image/') ? (
+                              <a key={a.id} href={a.file_url} target="_blank" rel="noreferrer"><img src={a.file_url} alt={a.file_name} style={{ maxWidth: 200, maxHeight: 160, borderRadius: 8, border: '1px solid var(--border)' }} /></a>
+                            ) : (a.mime_type || '').startsWith('video/') ? (
+                              <video key={a.id} src={a.file_url} controls style={{ maxWidth: 260, borderRadius: 8, border: '1px solid var(--border)' }} />
+                            ) : (
+                              <a key={a.id} href={a.file_url} target="_blank" rel="noreferrer" className="tag-chip" style={{ background: 'var(--bg-surface)', border: '1px solid var(--border)' }}><Icon name="paperclip" size={12} /> {a.file_name}</a>
+                            )
+                          ))}
+                        </div>
+                      )}
                     </div>
                   </div>
                 ))}
                 {ticket.comments.length === 0 && <div style={{ color: 'var(--text-muted)', fontSize: 12 }}>{t('common.noData')}</div>}
               </div>
               <textarea className="textarea" placeholder={t('ticket.addComment')} value={comment} onChange={(e) => setComment(e.target.value)} />
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: 8 }}>
-                {isStaff ? (
-                  <label style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 12 }}>
-                    <input type="checkbox" checked={internal} onChange={(e) => setInternal(e.target.checked)} /> {t('ticket.internalNote')}
+              {stagedFiles.length > 0 && (
+                <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', marginTop: 8 }}>
+                  {stagedFiles.map((f, i) => (
+                    <span key={i} className="tag-chip" style={{ background: 'var(--bg-sunken)' }}>
+                      {f.type.startsWith('image/') ? '🖼' : f.type.startsWith('video/') ? '🎬' : '📄'} {f.name}
+                      <button className="icon-btn" style={{ width: 18, height: 18 }} onClick={() => setStagedFiles((s) => s.filter((_, j) => j !== i))}><Icon name="x" size={12} /></button>
+                    </span>
+                  ))}
+                </div>
+              )}
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: 8, gap: 8, flexWrap: 'wrap' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+                  <label className="btn btn-ghost btn-sm" style={{ cursor: 'pointer', gap: 6 }} title={t('ticket.attachMedia')}>
+                    <Icon name="paperclip" size={16} /> {t('ticket.attachMedia')}
+                    <input type="file" hidden accept="image/*,video/*,.pdf,.xlsx,.xls" multiple onChange={(e) => { if (e.target.files) setStagedFiles((s) => [...s, ...Array.from(e.target.files!)]); e.currentTarget.value=''; }} />
                   </label>
-                ) : <span />}
+                  {isStaff && (
+                    <label style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 12 }}>
+                      <input type="checkbox" checked={internal} onChange={(e) => setInternal(e.target.checked)} /> {t('ticket.internalNote')}
+                    </label>
+                  )}
+                </div>
                 <button className="btn btn-primary btn-sm" onClick={postComment}>{t('common.submit')}</button>
               </div>
             </div>
@@ -192,9 +246,36 @@ export function TicketDetailPage() {
                   </select>
                 ) : <div>{ticket.owner_name || '—'}</div>}
               </div>
+              {/* Multiple dev assignees */}
+              <div>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 6 }}>
+                  <span style={{ fontSize: 12, color: 'var(--text-secondary)' }}>{t('ticket.assignees')}</span>
+                  {isStaff && <button className="btn btn-ghost btn-sm" style={{ height: 24, padding: '0 6px' }} onClick={() => setEditAssignees((v) => !v)}><Icon name={editAssignees ? 'check' : 'plus'} size={14} /></button>}
+                </div>
+                {!editAssignees ? (
+                  ticket.assignees.length ? <AvatarStack names={ticket.assignees.map((a) => a.name)} size={26} max={6} /> : <span style={{ fontSize: 12, color: 'var(--text-muted)' }}>—</span>
+                ) : (
+                  <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>
+                    {owners.map((o) => {
+                      const on = ticket.assignees.some((a) => a.id === o.id);
+                      return (
+                        <button key={o.id} className="tag-chip" onClick={() => {
+                          const ids = on ? ticket.assignees.filter((a) => a.id !== o.id).map((a) => a.id) : [...ticket.assignees.map((a) => a.id), o.id];
+                          saveAssignees(ids);
+                        }} style={{ cursor: 'pointer', border: '1px solid var(--border)', background: on ? 'var(--color-primary)' : 'var(--bg-surface)', color: on ? '#fff' : 'var(--text-primary)' }}>
+                          {o.name}
+                        </button>
+                      );
+                    })}
+                  </div>
+                )}
+              </div>
               {(ticket.reopen_count ?? 0) > 0 && <Meta label={t('ticket.reopenCount')} value={String(ticket.reopen_count)} />}
               {ticket.jira_issue_id && <Meta label="Jira" value={ticket.jira_issue_id} />}
             </div>
+
+            {/* Quality review + dev evaluation */}
+            <ReviewPanel ticket={ticket} role={user!.role} staff={owners} onReviewed={load} />
 
             {/* History / audit log */}
             <div className="card">

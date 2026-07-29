@@ -82,6 +82,47 @@ router.get(
   })
 );
 
+/**
+ * Dev performance scorecard — aggregates moderator reviews per dev plus
+ * workload/throughput. Used for staff evaluation.
+ */
+router.get(
+  '/dev-performance',
+  requireRole('super_admin', 'csm', 'dev_lead', 'gate'),
+  asyncHandler(async (_req, res) => {
+    const { rows } = await query<any>(
+      `SELECT u.id, u.name, u.role,
+              COALESCE(rv.review_count, 0)::int AS review_count,
+              ROUND(rv.avg_rating, 2) AS avg_rating,
+              ROUND(rv.avg_quality, 2) AS avg_quality,
+              ROUND(rv.avg_timeliness, 2) AS avg_timeliness,
+              COALESCE(wk.resolved_count, 0)::int AS resolved_count,
+              COALESCE(wk.open_count, 0)::int AS open_count,
+              COALESCE(wk.breached_count, 0)::int AS breached_count
+       FROM users u
+       LEFT JOIN (
+         SELECT dev_id,
+                count(*) AS review_count,
+                avg(rating) AS avg_rating,
+                avg(quality) AS avg_quality,
+                avg(timeliness) AS avg_timeliness
+         FROM ticket_reviews GROUP BY dev_id
+       ) rv ON rv.dev_id = u.id
+       LEFT JOIN (
+         SELECT owner_id AS uid,
+                count(*) FILTER (WHERE status IN ('complete','resolved','close')) AS resolved_count,
+                count(*) FILTER (WHERE status NOT IN ('complete','resolved','close')) AS open_count,
+                count(*) FILTER (WHERE sla_resolve_deadline < COALESCE(resolved_at, now())
+                                  AND status <> 'open') AS breached_count
+         FROM tickets GROUP BY owner_id
+       ) wk ON wk.uid = u.id
+       WHERE u.role IN ('dev','dev_lead','gate')
+       ORDER BY avg_rating DESC NULLS LAST, resolved_count DESC`,
+    );
+    res.json({ items: rows });
+  })
+);
+
 /** SLA / reopen summary report (JSON) — for monthly/quarterly reporting. */
 router.get(
   '/summary',

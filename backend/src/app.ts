@@ -15,6 +15,7 @@ import orgRoutes from './modules/orgs/org.routes';
 import projectRoutes from './modules/projects/project.routes';
 import ticketRoutes from './modules/tickets/ticket.routes';
 import commentRoutes from './modules/comments/comment.routes';
+import reviewRoutes from './modules/reviews/review.routes';
 import templateRoutes from './modules/templates/template.routes';
 import tagRoutes from './modules/tags/tag.routes';
 import dashboardRoutes from './modules/dashboard/dashboard.routes';
@@ -54,6 +55,7 @@ export function createApp() {
   app.use('/api/projects', projectRoutes);
   app.use('/api/tickets', ticketRoutes);
   app.use('/api/tickets', commentRoutes); // /:ticketId/comments
+  app.use('/api/tickets', reviewRoutes); // /:ticketId/reviews
   app.use('/api/templates', templateRoutes);
   app.use('/api/tags', tagRoutes);
   app.use('/api/dashboard', dashboardRoutes);

@@ -14,7 +14,7 @@
     "status": "Trạng thái", "unassigned": "Chưa giao", "page": "Trang"
   },
   "nav": {
-    "dashboard": "Dashboard", "tickets": "Danh sách ticket", "createTicket": "Tạo ticket",
+    "dashboard": "Dashboard", "board": "Bảng Kanban", "tickets": "Danh sách ticket", "createTicket": "Tạo ticket",
     "templates": "Mẫu ticket", "reports": "Báo cáo", "admin": "Quản trị",
     "orgs": "Khách hàng & Dự án", "users": "Người dùng", "sla": "Cấu hình SLA"
   },
@@ -50,7 +50,16 @@
     "slaBreached": "Đã vi phạm SLA", "slaAtRisk": "Sắp vi phạm SLA", "escalated": "Đã escalate",
     "jira": "Jira", "jiraGuide": "Hướng dẫn tạo Jira Issue", "jiraLink": "Link Jira Issue",
     "reopenCount": "Số lần reopen", "duplicateWarning": "Cảnh báo: ticket tương tự đã tồn tại",
-    "assignOwner": "Giao xử lý", "empty": "Chưa có ticket nào", "firstResponse": "Phản hồi đầu"
+    "assignOwner": "Giao xử lý", "empty": "Chưa có ticket nào", "firstResponse": "Phản hồi đầu",
+    "assignees": "Người xử lý (nhiều dev)", "addAssignee": "Thêm dev", "attachMedia": "Đính kèm ảnh/video",
+    "review": "Đánh giá chất lượng", "reviewDev": "Chọn dev để đánh giá", "rating": "Điểm tổng",
+    "quality": "Chất lượng", "timeliness": "Đúng hạn", "reviewNote": "Nhận xét",
+    "submitReview": "Gửi đánh giá", "reviewedBy": "Đánh giá bởi", "reviewOnlyDone": "Chỉ đánh giá khi ticket đã hoàn thành",
+    "noReviews": "Chưa có đánh giá"
+  },
+  "devPerf": {
+    "title": "Đánh giá nhân viên", "avgRating": "Điểm TB", "reviews": "Lượt đánh giá",
+    "resolved": "Đã xử lý", "open": "Đang mở", "breached": "Vi phạm SLA", "quality": "Chất lượng", "timeliness": "Đúng hạn"
   },
   "status": {
     "null": "Chưa xử lý", "open": "Mở", "in_progress": "Đang xử lý", "build": "Build",
@@ -73,6 +82,7 @@
     }
   },
   "notif": { "title": "Thông báo", "empty": "Không có thông báo mới", "markAll": "Đánh dấu đã đọc tất cả" },
+  "notifTypes": { "ticket_created": "Tạo ticket", "status_changed": "Đổi trạng thái", "assigned": "Được giao ticket", "sla_warning": "Cảnh báo SLA", "comment": "Bình luận mới", "mention": "Được nhắc đến", "ticket_resolved": "Ticket xử lý xong" },
   "userMgmt": {
     "create": "Tạo user", "edit": "Phân quyền", "name": "Họ tên", "role": "Vai trò",
     "language": "Ngôn ngữ", "active": "Đang hoạt động", "password": "Mật khẩu",

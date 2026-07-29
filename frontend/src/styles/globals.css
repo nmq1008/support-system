@@ -106,6 +106,22 @@ input, select, textarea { font-family: inherit; }
 .skeleton { background: linear-gradient(90deg, var(--bg-sunken) 25%, var(--border) 37%, var(--bg-sunken) 63%); background-size: 400% 100%; animation: shimmer 1.4s infinite; border-radius: 6px; }
 @keyframes shimmer { 0% { background-position: 100% 0; } 100% { background-position: -100% 0; } }
 
+/* ── Kanban board ── */
+.board-scroll { padding-bottom: 4px; }
+.board-columns { display: flex; gap: 14px; height: 100%; align-items: stretch; padding-bottom: 8px; }
+.board-col { width: 288px; min-width: 288px; flex-shrink: 0; background: var(--bg-sunken); border-radius: 14px; display: flex; flex-direction: column; max-height: 100%; border: 1.5px solid transparent; transition: background .12s, border-color .12s; }
+.board-col.over { background: var(--color-primary-10); border-color: var(--color-primary-50); }
+.board-col-head { display: flex; align-items: center; gap: 8px; padding: 12px 14px 10px; border-top: 3px solid var(--border-strong); border-radius: 14px 14px 0 0; position: sticky; top: 0; }
+.board-col-count { margin-left: auto; font-size: 12px; font-weight: 700; color: var(--text-secondary); background: var(--bg-surface); min-width: 22px; height: 22px; border-radius: 999px; display: inline-flex; align-items: center; justify-content: center; padding: 0 6px; }
+.board-col-body { flex: 1; overflow-y: auto; overflow-x: hidden; padding: 4px 10px 12px; display: flex; flex-direction: column; gap: 10px; min-height: 60px; }
+.board-col-body::-webkit-scrollbar { width: 6px; }
+.board-col-body::-webkit-scrollbar-thumb { background: var(--border-strong); border-radius: 6px; }
+.kb-card { background: var(--bg-surface); border: 1px solid var(--border); border-radius: 12px; padding: 12px; cursor: grab; transition: box-shadow .12s, transform .12s, border-color .12s; }
+.kb-card:hover { box-shadow: var(--shadow-card); border-color: var(--border-strong); transform: translateY(-1px); }
+.kb-card:active { cursor: grabbing; }
+.kb-empty { flex: 1; min-height: 80px; display: flex; align-items: center; justify-content: center; color: var(--text-muted); font-size: 20px; border: 2px dashed transparent; border-radius: 10px; }
+.board-col.over .kb-empty { border-color: var(--color-primary-50); color: var(--color-primary); }
+
 .toast-wrap { position: fixed; top: 76px; right: 20px; z-index: var(--z-toast); display: flex; flex-direction: column; gap: 8px; }
 .toast { background: var(--bg-surface); border: 1px solid var(--border); border-left: 4px solid var(--color-primary); border-radius: 8px; padding: 12px 16px; box-shadow: var(--shadow-card); min-width: 260px; font-size: 12px; }
 .toast.success { border-left-color: var(--success); }

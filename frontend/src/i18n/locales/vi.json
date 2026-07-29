@@ -50,7 +50,16 @@
     "slaBreached": "Đã vi phạm SLA", "slaAtRisk": "Sắp vi phạm SLA", "escalated": "Đã escalate",
     "jira": "Jira", "jiraGuide": "Hướng dẫn tạo Jira Issue", "jiraLink": "Link Jira Issue",
     "reopenCount": "Số lần reopen", "duplicateWarning": "Cảnh báo: ticket tương tự đã tồn tại",
-    "assignOwner": "Giao xử lý", "empty": "Chưa có ticket nào", "firstResponse": "Phản hồi đầu"
+    "assignOwner": "Giao xử lý", "empty": "Chưa có ticket nào", "firstResponse": "Phản hồi đầu",
+    "assignees": "Người xử lý (nhiều dev)", "addAssignee": "Thêm dev", "attachMedia": "Đính kèm ảnh/video",
+    "review": "Đánh giá chất lượng", "reviewDev": "Chọn dev để đánh giá", "rating": "Điểm tổng",
+    "quality": "Chất lượng", "timeliness": "Đúng hạn", "reviewNote": "Nhận xét",
+    "submitReview": "Gửi đánh giá", "reviewedBy": "Đánh giá bởi", "reviewOnlyDone": "Chỉ đánh giá khi ticket đã hoàn thành",
+    "noReviews": "Chưa có đánh giá"
+  },
+  "devPerf": {
+    "title": "Đánh giá nhân viên", "avgRating": "Điểm TB", "reviews": "Lượt đánh giá",
+    "resolved": "Đã xử lý", "open": "Đang mở", "breached": "Vi phạm SLA", "quality": "Chất lượng", "timeliness": "Đúng hạn"
   },
   "status": {
     "null": "Chưa xử lý", "open": "Mở", "in_progress": "Đang xử lý", "build": "Build",
