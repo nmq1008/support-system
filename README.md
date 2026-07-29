@@ -41,6 +41,19 @@ docker compose up --build
 
 Migration + seed tự chạy khi backend khởi động (`RUN_MIGRATIONS=true`, `RUN_SEED=true`).
 
+### Dữ liệu demo lớn (30 doanh nghiệp)
+
+Để nạp bộ dữ liệu mô phỏng hệ thống **đang vận hành cho 30 doanh nghiệp**
+(30 org · ~55 dự án · ~600 ticket đủ trạng thái/ưu tiên/SLA · comment · nhiều
+người xử lý · review chấm điểm dev · thông báo):
+
+```bash
+cd backend && npm run seed:demo     # ⚠️ TRUNCATE toàn bộ dữ liệu rồi sinh lại
+```
+
+Sau khi chạy, mọi màn hình (Dashboard, Kanban, Danh sách ticket, Báo cáo,
+Đánh giá nhân viên) đều có số liệu như thật. Tài khoản đăng nhập bên dưới vẫn giữ nguyên.
+
 ### Tài khoản seed (mật khẩu chung: `Password@123`)
 
 | Email                    | Role           |

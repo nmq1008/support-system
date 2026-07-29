@@ -10,6 +10,7 @@
     "start": "node dist/index.js",
     "migrate": "ts-node src/db/migrate.ts",
     "seed": "ts-node src/db/seed.ts",
+    "seed:demo": "ts-node src/db/demo-seed.ts",
     "test": "jest --runInBand --passWithNoTests"
   },
   "dependencies": {
