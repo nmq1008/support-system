@@ -70,7 +70,12 @@
     "quality": "Chất lượng", "timeliness": "Đúng hạn", "reviewNote": "Nhận xét",
     "submitReview": "Gửi đánh giá", "reviewedBy": "Đánh giá bởi", "reviewOnlyDone": "Chỉ đánh giá khi ticket đã hoàn thành",
     "noReviews": "Chưa có đánh giá", "assigneeSaved": "Đã cập nhật người xử lý", "searchName": "Tìm tên người xử lý…",
-    "creator": "Người tạo", "tags": "Nhãn"
+    "creator": "Người tạo", "tags": "Nhãn",
+    "summary": "Tóm tắt yêu cầu", "estSla": "SLA dự kiến (xử lý)", "selectType": "Chọn loại yêu cầu",
+    "requestInfo": "Thông tin yêu cầu", "tipTitle": "Mẹo tạo ticket",
+    "tip1": "Chọn đúng loại yêu cầu để định tuyến nhanh hơn.", "tip2": "Tiêu đề rõ ràng giúp tránh trùng lặp.",
+    "tip3": "Mức ưu tiên cao hơn = SLA ngắn hơn.", "noTemplate": "Không dùng mẫu",
+    "selectedTemplate": "Mẫu đã chọn", "newTemplate": "Tạo mẫu mới"
   },
   "bucket": {
     "all": "Tất cả", "bucketOpen": "Mở/Mở lại", "bucketActive": "Đang xử lý",

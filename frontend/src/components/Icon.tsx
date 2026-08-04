@@ -31,6 +31,11 @@ const PATHS: Record<string, JSX.Element> = {
   shield: <><path d="M12 2 4 5v6c0 5 3.4 8.5 8 10 4.6-1.5 8-5 8-10V5l-8-3Z" /><path d="m9 12 2 2 4-4" /></>,
   sparkles: <><path d="M12 3l1.6 4.4L18 9l-4.4 1.6L12 15l-1.6-4.4L6 9l4.4-1.6L12 3Z" /><path d="M19 14l.8 2.2L22 17l-2.2.8L19 20l-.8-2.2L16 17l2.2-.8L19 14Z" /></>,
   check2: <><circle cx="12" cy="12" r="9" /><path d="m8 12 3 3 5-6" /></>,
+  bug: <><path d="M9 3l1 2M15 3l-1 2" /><rect x="8" y="7" width="8" height="11" rx="4" /><path d="M8 11H4M8 15H4M16 11h4M16 15h4M12 7v11M8.5 18.5 6 21M15.5 18.5 18 21" /></>,
+  lifebuoy: <><circle cx="12" cy="12" r="9" /><circle cx="12" cy="12" r="3.6" /><path d="m4.9 4.9 4.6 4.6M14.5 14.5l4.6 4.6M19.1 4.9l-4.6 4.6M9.5 14.5l-4.6 4.6" /></>,
+  card: <><rect x="2" y="5" width="20" height="14" rx="2" /><path d="M2 10h20" /></>,
+  info: <><circle cx="12" cy="12" r="9" /><path d="M12 11v5M12 8h.01" /></>,
+  send: <><path d="M22 2 11 13M22 2l-7 20-4-9-9-4 20-7Z" /></>,
 };
 
 export function Icon({ name, size = 18 }: IconProps) {

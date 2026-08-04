@@ -4,6 +4,7 @@ import { api, apiError } from '../lib/api';
 import { Template, TemplateField } from '../lib/types';
 import { Icon } from '../components/Icon';
 import { useToast } from '../context/ToastContext';
+import { templateMeta } from '../lib/format';
 
 const FIELD_TYPES = ['text', 'textarea', 'select', 'multiselect', 'date', 'file', 'priority', 'toggle', 'section'];
 
@@ -55,14 +56,25 @@ export function TemplateBuilder() {
         <div className="page-header"><div className="page-title-row"><h1 className="page-title">{t('nav.templates')}</h1>
           <button className="btn btn-primary btn-sm" onClick={startNew}><Icon name="plus" size={16} /> {t('common.create')}</button></div></div>
         <div className="content-scroll">
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill,minmax(220px,1fr))', gap: 12 }}>
-            {templates.map((tp) => (
-              <div key={tp.id} className="card" style={{ cursor: 'pointer' }} onClick={() => edit(tp)}>
-                <Icon name="template" size={22} />
-                <div style={{ fontWeight: 600, marginTop: 8 }}>{lang === 'en' ? tp.name_en || tp.name : tp.name}</div>
-                <div className="subline">{tp.fields_schema?.length || 0} fields {tp.is_default && '· default'}</div>
-              </div>
-            ))}
+          <div className="tpl-gallery">
+            {templates.map((tp) => {
+              const meta = templateMeta(tp.category);
+              return (
+                <div key={tp.id} className="tpl-tile" style={{ ['--tpl-accent' as any]: meta.color }} onClick={() => edit(tp)}>
+                  <span className="tpl-tile-ic" style={{ background: `${meta.color}18`, color: meta.color }}><Icon name={meta.icon} size={22} /></span>
+                  <div className="tpl-tile-name">{lang === 'en' ? tp.name_en || tp.name : tp.name}</div>
+                  <div className="tpl-tile-desc">{lang === 'en' ? meta.descEn : meta.descVi}</div>
+                  <div className="tpl-tile-foot">
+                    <span className="tpl-pill">{tp.fields_schema?.length || 0} {lang === 'en' ? 'fields' : 'trường'}</span>
+                    {tp.is_default && <span className="tpl-pill" style={{ background: 'var(--color-primary-10)', color: 'var(--color-primary)' }}>{lang === 'en' ? 'Default' : 'Mặc định'}</span>}
+                  </div>
+                </div>
+              );
+            })}
+            <button className="tpl-add" onClick={startNew}>
+              <Icon name="plus" size={22} />
+              {t('ticket.newTemplate')}
+            </button>
           </div>
         </div>
       </>

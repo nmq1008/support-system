@@ -70,7 +70,12 @@
     "quality": "Quality", "timeliness": "Timeliness", "reviewNote": "Notes",
     "submitReview": "Submit review", "reviewedBy": "Reviewed by", "reviewOnlyDone": "Reviews are available once the ticket is done",
     "noReviews": "No reviews yet", "assigneeSaved": "Assignees updated", "searchName": "Search assignee name…",
-    "creator": "Reporter", "tags": "Tags"
+    "creator": "Reporter", "tags": "Tags",
+    "summary": "Request summary", "estSla": "Estimated SLA (resolve)", "selectType": "Choose request type",
+    "requestInfo": "Request details", "tipTitle": "Tips",
+    "tip1": "Pick the right type for faster routing.", "tip2": "A clear title helps avoid duplicates.",
+    "tip3": "Higher priority = shorter SLA.", "noTemplate": "No template",
+    "selectedTemplate": "Selected template", "newTemplate": "New template"
   },
   "bucket": {
     "all": "All", "bucketOpen": "Open/Reopen", "bucketActive": "In progress",
