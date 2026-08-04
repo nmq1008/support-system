@@ -113,7 +113,9 @@
     "projects": "Allowed projects", "managedOrgs": "Managed orgs (CSM)",
     "assignHint": "Pick projects so this user can coordinate / handle tickets",
     "created": "User created", "updated": "User updated", "homeOrg": "Customer's org",
-    "selectProjects": "Select projects…", "noAccess": "No project access assigned"
+    "selectProjects": "Select projects…", "noAccess": "No project access assigned",
+    "userType": "Account type", "typeStaff": "Staff", "typeCustomer": "Customer",
+    "level": "Level / Role", "searchProject": "Search project by name or code…", "selected": "selected"
   },
   "profile": {
     "title": "My profile", "info": "Information", "changePassword": "Change password",

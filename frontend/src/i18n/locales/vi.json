@@ -113,7 +113,9 @@
     "projects": "Dự án được phép", "managedOrgs": "Org được quản lý (CSM)",
     "assignHint": "Chọn dự án để user có thể điều phối/xử lý ticket",
     "created": "Đã tạo user", "updated": "Đã cập nhật user", "homeOrg": "Org của khách hàng",
-    "selectProjects": "Chọn dự án…", "noAccess": "Chưa gán quyền dự án nào"
+    "selectProjects": "Chọn dự án…", "noAccess": "Chưa gán quyền dự án nào",
+    "userType": "Loại tài khoản", "typeStaff": "Nhân sự", "typeCustomer": "Khách hàng",
+    "level": "Cấp độ / Vai trò", "searchProject": "Tìm dự án theo tên hoặc mã…", "selected": "đã chọn"
   },
   "profile": {
     "title": "Hồ sơ cá nhân", "info": "Thông tin", "changePassword": "Đổi mật khẩu",

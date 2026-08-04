@@ -1,12 +1,15 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Modal } from './Modal';
+import { Icon } from './Icon';
 import { api, apiError } from '../lib/api';
 import { useToast } from '../context/ToastContext';
 import { Org, Project, Role } from '../lib/types';
 
-const ROLES: Role[] = ['super_admin', 'csm', 'dev_lead', 'dev', 'gate', 'customer_admin', 'customer'];
-const STAFF_ROLES: Role[] = ['csm', 'dev_lead', 'dev', 'gate'];
+const STAFF_ROLES: Role[] = ['super_admin', 'csm', 'dev_lead', 'dev', 'gate'];
+const CUSTOMER_ROLES: Role[] = ['customer_admin', 'customer'];
+type UType = 'staff' | 'customer';
+const typeOf = (r: Role): UType => (CUSTOMER_ROLES.includes(r) ? 'customer' : 'staff');
 
 interface Props {
   userId?: string | null; // null/undefined = create mode
@@ -21,21 +24,28 @@ export function UserFormModal({ userId, orgs, projects, currentRole, onClose, on
   const { t } = useTranslation();
   const toast = useToast();
   const isEdit = !!userId;
+  const isCustomerAdmin = currentRole === 'customer_admin';
 
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [role, setRole] = useState<Role>('dev');
+  const [role, setRole] = useState<Role>(isCustomerAdmin ? 'customer' : 'dev');
   const [language, setLanguage] = useState<'vi' | 'en'>('vi');
   const [orgId, setOrgId] = useState('');
   const [active, setActive] = useState(true);
   const [projectIds, setProjectIds] = useState<string[]>([]);
   const [managedOrgIds, setManagedOrgIds] = useState<string[]>([]);
+  const [projSearch, setProjSearch] = useState('');
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState('');
 
-  // A CSM admin cannot create a super_admin.
-  const roleOptions = currentRole === 'csm' ? ROLES.filter((r) => r !== 'super_admin') : ROLES;
+  // org id → short code map (for compact chip labels)
+  const orgCode = useMemo(() => Object.fromEntries(orgs.map((o) => [o.id, o.code])), [orgs]);
+
+  // Available roles per user type (a CSM cannot mint a Super Admin).
+  const staffLevels = currentRole === 'csm' ? STAFF_ROLES.filter((r) => r !== 'super_admin') : STAFF_ROLES;
+  const userType = typeOf(role);
+  const roleOptions = userType === 'staff' ? staffLevels : CUSTOMER_ROLES;
 
   useEffect(() => {
     if (!userId) return;
@@ -47,12 +57,25 @@ export function UserFormModal({ userId, orgs, projects, currentRole, onClose, on
     }).catch((e) => setError(apiError(e)));
   }, [userId]);
 
-  const isStaff = STAFF_ROLES.includes(role) || role === 'super_admin';
-  const isCustomer = role === 'customer' || role === 'customer_admin';
+  const isStaff = userType === 'staff';
+  const isCustomer = userType === 'customer';
 
+  function setType(tp: UType) {
+    if (userType === tp) return;
+    setRole(tp === 'staff' ? staffLevels[0] : 'customer');
+  }
   function toggle(list: string[], setList: (v: string[]) => void, id: string) {
     setList(list.includes(id) ? list.filter((x) => x !== id) : [...list, id]);
   }
+
+  // Searchable project list (by name, project code, org name, org code).
+  const filteredProjects = useMemo(() => {
+    const q = projSearch.trim().toLowerCase();
+    if (!q) return projects;
+    return projects.filter((p) =>
+      [p.name, p.code, p.org_name, orgCode[p.org_id]].some((v) => (v || '').toLowerCase().includes(q))
+    );
+  }, [projSearch, projects, orgCode]);
 
   async function save() {
     setError(''); setSaving(true);
@@ -78,7 +101,22 @@ export function UserFormModal({ userId, orgs, projects, currentRole, onClose, on
   }
 
   return (
-    <Modal title={isEdit ? t('userMgmt.edit') : t('userMgmt.create')} onClose={onClose} width={560}>
+    <Modal title={isEdit ? t('userMgmt.edit') : t('userMgmt.create')} onClose={onClose} width={580}>
+      {/* User type: Staff vs Customer */}
+      {!isCustomerAdmin && (
+        <div className="field">
+          <label>{t('userMgmt.userType')} <span className="req">*</span></label>
+          <div className="seg">
+            <button type="button" className={`seg-btn ${isStaff ? 'on' : ''}`} onClick={() => setType('staff')}>
+              <Icon name="users" size={15} /> {t('userMgmt.typeStaff')}
+            </button>
+            <button type="button" className={`seg-btn ${isCustomer ? 'on' : ''}`} onClick={() => setType('customer')}>
+              <Icon name="building" size={15} /> {t('userMgmt.typeCustomer')}
+            </button>
+          </div>
+        </div>
+      )}
+
       <div className="field">
         <label>{t('userMgmt.name')} <span className="req">*</span></label>
         <input className="input" value={name} onChange={(e) => setName(e.target.value)} />
@@ -104,8 +142,8 @@ export function UserFormModal({ userId, orgs, projects, currentRole, onClose, on
 
       <div style={{ display: 'flex', gap: 10 }}>
         <div className="field" style={{ flex: 1 }}>
-          <label>{t('userMgmt.role')} <span className="req">*</span></label>
-          <select className="select" value={role} onChange={(e) => setRole(e.target.value as Role)}>
+          <label>{isStaff ? t('userMgmt.level') : t('userMgmt.role')} <span className="req">*</span></label>
+          <select className="select" value={role} onChange={(e) => setRole(e.target.value as Role)} disabled={isCustomerAdmin}>
             {roleOptions.map((r) => <option key={r} value={r}>{t(`roles.${r}`)}</option>)}
           </select>
         </div>
@@ -123,7 +161,7 @@ export function UserFormModal({ userId, orgs, projects, currentRole, onClose, on
           <label>{t('userMgmt.homeOrg')}</label>
           <select className="select" value={orgId} onChange={(e) => setOrgId(e.target.value)}>
             <option value="">—</option>
-            {orgs.map((o) => <option key={o.id} value={o.id}>{o.name}</option>)}
+            {orgs.map((o) => <option key={o.id} value={o.id}>{o.code} — {o.name}</option>)}
           </select>
         </div>
       )}
@@ -132,29 +170,40 @@ export function UserFormModal({ userId, orgs, projects, currentRole, onClose, on
       {role === 'csm' && (
         <div className="field">
           <label>{t('userMgmt.managedOrgs')}</label>
-          <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>
-            {orgs.map((o) => (
-              <button key={o.id} type="button" onClick={() => toggle(managedOrgIds, setManagedOrgIds, o.id)}
-                className="tag-chip" style={{ cursor: 'pointer', border: '1px solid var(--border)', background: managedOrgIds.includes(o.id) ? 'var(--color-primary)' : 'var(--bg-surface)', color: managedOrgIds.includes(o.id) ? '#fff' : 'var(--text-primary)' }}>
-                {o.name}
-              </button>
-            ))}
+          <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6, maxHeight: 120, overflowY: 'auto' }}>
+            {orgs.map((o) => {
+              const on = managedOrgIds.includes(o.id);
+              return (
+                <button key={o.id} type="button" title={o.name} onClick={() => toggle(managedOrgIds, setManagedOrgIds, o.id)}
+                  className="tag-chip" style={{ cursor: 'pointer', border: '1px solid var(--border)', background: on ? 'var(--color-primary)' : 'var(--bg-surface)', color: on ? '#fff' : 'var(--text-primary)' }}>
+                  <b>{o.code}</b> · {o.name}
+                </button>
+              );
+            })}
           </div>
         </div>
       )}
 
-      {/* Project access — for staff who coordinate/handle tickets */}
+      {/* Project access — searchable, compact code labels */}
       {(isStaff || role === 'customer') && (
         <div className="field">
-          <label>{t('userMgmt.projects')}</label>
+          <label>{t('userMgmt.projects')} {projectIds.length > 0 && <span className="helper">· {projectIds.length} {t('userMgmt.selected')}</span>}</label>
           <div className="helper" style={{ marginBottom: 6 }}>{t('userMgmt.assignHint')}</div>
-          <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>
-            {projects.map((p) => (
-              <button key={p.id} type="button" onClick={() => toggle(projectIds, setProjectIds, p.id)}
-                className="tag-chip" style={{ cursor: 'pointer', border: '1px solid var(--border)', background: projectIds.includes(p.id) ? 'var(--color-primary)' : 'var(--bg-surface)', color: projectIds.includes(p.id) ? '#fff' : 'var(--text-primary)' }}>
-                {p.name} <span style={{ opacity: 0.7 }}>· {p.org_name}</span>
-              </button>
-            ))}
+          <div className="header-search" style={{ height: 34, marginBottom: 8, maxWidth: '100%' }}>
+            <Icon name="search" size={15} />
+            <input placeholder={t('userMgmt.searchProject')} value={projSearch} onChange={(e) => setProjSearch(e.target.value)} />
+          </div>
+          <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6, maxHeight: 200, overflowY: 'auto', padding: 2 }}>
+            {filteredProjects.map((p) => {
+              const on = projectIds.includes(p.id);
+              return (
+                <button key={p.id} type="button" title={`${p.name} · ${p.org_name}`} onClick={() => toggle(projectIds, setProjectIds, p.id)}
+                  className="tag-chip" style={{ cursor: 'pointer', border: `1px solid ${on ? 'var(--color-primary)' : 'var(--border)'}`, background: on ? 'var(--color-primary)' : 'var(--bg-surface)', color: on ? '#fff' : 'var(--text-primary)' }}>
+                  <b>{p.code}</b> · {orgCode[p.org_id] || p.org_name}
+                </button>
+              );
+            })}
+            {filteredProjects.length === 0 && <span className="helper">{t('common.noData')}</span>}
           </div>
         </div>
       )}

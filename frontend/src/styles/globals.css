@@ -217,6 +217,19 @@ input, select, textarea { font-family: inherit; }
 .tip-list { margin: 0; padding-left: 18px; display: grid; gap: 8px; font-size: 12px; color: var(--text-secondary); }
 .tip-list li::marker { color: var(--color-primary); }
 
+/* Segmented control (staff/customer toggle) */
+.seg { display: flex; gap: 6px; padding: 4px; background: var(--bg-sunken); border: 1px solid var(--border); border-radius: 10px; }
+.seg-btn {
+  flex: 1; display: flex; align-items: center; justify-content: center; gap: 7px;
+  height: 36px; padding: 0 12px; border: 1px solid transparent; border-radius: 7px;
+  background: transparent; color: var(--text-secondary); font-size: 13px; font-weight: 600;
+  cursor: pointer; transition: all .15s;
+}
+.seg-btn:hover { color: var(--text-primary); background: var(--bg-surface); }
+.seg-btn.on { background: var(--color-primary); color: #fff; border-color: var(--color-primary); box-shadow: 0 2px 8px var(--color-primary-20); }
+:root[data-theme='dark'] .seg { background: rgba(255,255,255,0.03); }
+:root[data-theme='dark'] .seg-btn.on { box-shadow: 0 0 16px rgba(59,130,246,0.35); }
+
 /* ── Template gallery ── */
 .tpl-gallery { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 14px; }
 .tpl-tile { position: relative; padding: 18px; border-radius: 14px; border: 1px solid var(--border); background: var(--bg-surface); cursor: pointer; transition: all .14s; overflow: hidden; }

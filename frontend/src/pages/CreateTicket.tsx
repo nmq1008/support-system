@@ -156,15 +156,6 @@ export function CreateTicket() {
                 <b className="sla-est-val">{humanHours(estHours, lang)}</b>
               </div>
             </div>
-
-            <div className="card tip-card">
-              <h3 className="card-title" style={{ display: 'flex', alignItems: 'center', gap: 6 }}><Icon name="info" size={16} /> {t('ticket.tipTitle')}</h3>
-              <ul className="tip-list">
-                <li>{t('ticket.tip1')}</li>
-                <li>{t('ticket.tip2')}</li>
-                <li>{t('ticket.tip3')}</li>
-              </ul>
-            </div>
           </aside>
         </div>
       </div>
