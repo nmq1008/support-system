@@ -136,6 +136,13 @@ input, select, textarea { font-family: inherit; }
 /* Pulsing marker for urgent items (SLA at risk / unowned) */
 .pulse-dot { display: inline-block; width: 8px; height: 8px; border-radius: 50%; background: var(--error); margin-right: 6px; vertical-align: middle; animation: pulse 1.1s ease-in-out infinite; }
 @keyframes pulse { 0%,100% { box-shadow: 0 0 0 0 rgba(239,68,68,.6); } 50% { box-shadow: 0 0 0 5px rgba(239,68,68,0); } }
+/* Whole-card blink for "needs urgent handling" boxes (Excel row 14) */
+.urgent-blink { animation: urgentBlink 1.4s ease-in-out infinite; }
+@keyframes urgentBlink {
+  0%,100% { border-color: var(--error); box-shadow: 0 0 0 0 rgba(239,68,68,.30); }
+  50% { border-color: #FCA5A5; box-shadow: 0 0 0 4px rgba(239,68,68,.14); }
+}
+@media (prefers-reduced-motion: reduce) { .urgent-blink, .pulse-dot { animation: none; } }
 .kb-card.breached { border-color: var(--error); box-shadow: 0 0 0 1px var(--error); }
 .kb-card.breached::before { content: ''; position: absolute; }
 

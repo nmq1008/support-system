@@ -165,14 +165,15 @@ export function Dashboard() {
             { key: 'unowned', rows: data?.quick?.unowned, urgent: true },
             { key: 'waitingStale', rows: data?.quick?.waitingStale, urgent: false },
           ].map((q) => (
-            <div key={q.key} className="card" style={q.urgent && q.rows?.length ? { borderColor: 'var(--error)' } : undefined}>
+            <div key={q.key} className={`card ${q.urgent && q.rows?.length ? 'urgent-blink' : ''}`}>
               <h3 className="card-title" style={q.urgent && q.rows?.length ? { color: 'var(--error)' } : undefined}>
                 {q.urgent && q.rows?.length ? <span className="pulse-dot" /> : null}{t(`dashboard.${q.key}`)}
-                {q.rows?.length ? <span style={{ marginLeft: 6, fontSize: 12, color: 'var(--text-muted)' }}>({q.rows.length})</span> : null}
+                {q.rows?.length ? <span style={{ marginLeft: 6, fontSize: 12, fontWeight: 700, color: q.urgent ? 'var(--error)' : 'var(--text-muted)' }}>({q.rows.length})</span> : null}
               </h3>
               {q.rows?.length ? q.rows.map((r: any) => (
-                <div key={r.id} onClick={() => navigate(`/tickets/${r.id}`)} style={{ padding: '8px 0', borderBottom: '1px solid var(--border)', cursor: 'pointer', fontSize: 12, color: q.urgent ? 'var(--error)' : 'inherit', fontWeight: q.urgent ? 600 : 400 }}>
-                  <b>{r.code}</b> — <span style={{ color: 'var(--text-primary)', fontWeight: 400 }}>{r.title}</span>
+                <div key={r.id} onClick={() => navigate(`/tickets/${r.id}`)} style={{ padding: '8px 0', borderBottom: '1px solid var(--border)', cursor: 'pointer', fontSize: 12, display: 'flex', gap: 6, alignItems: 'baseline', borderLeft: q.urgent ? '3px solid var(--error)' : 'none', paddingLeft: q.urgent ? 8 : 0 }}>
+                  <b style={{ color: q.urgent ? 'var(--error)' : 'var(--color-primary)' }}>{r.code}</b>
+                  <span style={{ color: 'var(--text-primary)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{r.title}</span>
                 </div>
               )) : <div style={{ color: 'var(--text-muted)', fontSize: 12 }}>{t('common.noData')}</div>}
             </div>
