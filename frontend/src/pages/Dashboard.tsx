@@ -69,8 +69,8 @@ export function Dashboard() {
             ))}
             {mode === 'custom' && (
               <>
-                <input className="input btn-sm" style={{ width: 140 }} type="date" value={range.from} onChange={(e) => setRange((r) => ({ ...r, from: e.target.value }))} />
-                <input className="input btn-sm" style={{ width: 140 }} type="date" value={range.to} onChange={(e) => setRange((r) => ({ ...r, to: e.target.value }))} />
+                <input className="input" style={{ width: 168, height: 34 }} type="date" value={range.from} onChange={(e) => setRange((r) => ({ ...r, from: e.target.value }))} />
+                <input className="input" style={{ width: 168, height: 34 }} type="date" value={range.to} onChange={(e) => setRange((r) => ({ ...r, to: e.target.value }))} />
               </>
             )}
           </div>
@@ -100,12 +100,21 @@ export function Dashboard() {
           </div>
           <div className="card">
             <h3 className="card-title">{t('dashboard.slaCompliance')}</h3>
-            {data ? <div style={{ display: 'grid', placeItems: 'center' }}><Gauge value={s.slaCompliance} /></div> : <Skeleton height={120} />}
+            {data ? (
+              <div style={{ display: 'grid', placeItems: 'center' }}>
+                <Gauge value={s.slaCompliance} />
+                <div style={{ display: 'flex', gap: 16, marginTop: 4 }}>
+                  <span style={{ fontSize: 12 }}><b style={{ color: 'var(--success)' }}>{Math.max(0, s.total - s.slaBreached)}</b> {t('dashboard.onTime')}</span>
+                  <span style={{ fontSize: 12 }}><b style={{ color: 'var(--error)' }}>{s.slaBreached}</b> {t('dashboard.late')}</span>
+                </div>
+                <div className="subline" style={{ marginTop: 4, textAlign: 'center' }}>{t('dashboard.slaHint')}</div>
+              </div>
+            ) : <Skeleton height={120} />}
           </div>
         </div>
 
         {/* Charts row 2 */}
-        <div className="grid" style={{ gridTemplateColumns: '1.4fr 1fr', marginTop: 16 }}>
+        <div className="grid" style={{ gridTemplateColumns: 'repeat(auto-fit,minmax(320px,1fr))', marginTop: 16 }}>
           <div className="card">
             <h3 className="card-title">{t('dashboard.timeline')}</h3>
             {data ? <LineChart data={data.timeline} /> : <Skeleton height={200} />}
@@ -117,14 +126,16 @@ export function Dashboard() {
         </div>
 
         {/* Workload + Escalation */}
-        <div className="grid" style={{ gridTemplateColumns: '1fr 1.2fr', marginTop: 16 }}>
+        <div className="grid" style={{ gridTemplateColumns: 'repeat(auto-fit,minmax(320px,1fr))', marginTop: 16 }}>
           <div className="card">
             <h3 className="card-title">{t('dashboard.workload')}</h3>
             <table className="table">
               <thead><tr><th>{t('common.owner')}</th><th style={{ textAlign: 'right' }}>{t('dashboard.openTickets')}</th><th style={{ textAlign: 'right' }}>P1/P2</th><th style={{ textAlign: 'right' }}>SLA</th></tr></thead>
               <tbody>
                 {data?.workload?.length ? data.workload.map((w: any) => (
-                  <tr key={w.id}><td>{w.name}</td><td style={{ textAlign: 'right' }}>{w.open_tickets}</td><td style={{ textAlign: 'right' }}>{w.high_priority}</td><td style={{ textAlign: 'right', color: w.breached ? 'var(--error)' : 'inherit' }}>{w.breached}</td></tr>
+                  // Click a staff row → their in-progress ticket list (Excel row 10)
+                  <tr key={w.id} onClick={() => navigate(`/tickets?ownerId=${w.id}`)} title={t('dashboard.openTickets')}>
+                    <td>{w.name}</td><td style={{ textAlign: 'right' }}>{w.open_tickets}</td><td style={{ textAlign: 'right' }}>{w.high_priority}</td><td style={{ textAlign: 'right', color: w.breached ? 'var(--error)' : 'inherit', fontWeight: w.breached ? 700 : 400 }}>{w.breached}</td></tr>
                 )) : <tr><td colSpan={4} style={{ textAlign: 'center', color: 'var(--text-muted)' }}>{t('common.noData')}</td></tr>}
               </tbody>
             </table>
@@ -147,18 +158,21 @@ export function Dashboard() {
           </div>
         </div>
 
-        {/* Quick tables */}
+        {/* Quick tables — urgent ones get a pulsing red marker (Excel rows 13/14) */}
         <div className="grid" style={{ gridTemplateColumns: 'repeat(auto-fit,minmax(280px,1fr))', marginTop: 16 }}>
           {[
-            { key: 'slaAtRisk', rows: data?.quick?.slaAtRisk },
-            { key: 'unowned', rows: data?.quick?.unowned },
-            { key: 'waitingStale', rows: data?.quick?.waitingStale },
+            { key: 'slaAtRisk', rows: data?.quick?.slaAtRisk, urgent: true },
+            { key: 'unowned', rows: data?.quick?.unowned, urgent: true },
+            { key: 'waitingStale', rows: data?.quick?.waitingStale, urgent: false },
           ].map((q) => (
-            <div key={q.key} className="card">
-              <h3 className="card-title">{t(`dashboard.${q.key}`)}</h3>
+            <div key={q.key} className="card" style={q.urgent && q.rows?.length ? { borderColor: 'var(--error)' } : undefined}>
+              <h3 className="card-title" style={q.urgent && q.rows?.length ? { color: 'var(--error)' } : undefined}>
+                {q.urgent && q.rows?.length ? <span className="pulse-dot" /> : null}{t(`dashboard.${q.key}`)}
+                {q.rows?.length ? <span style={{ marginLeft: 6, fontSize: 12, color: 'var(--text-muted)' }}>({q.rows.length})</span> : null}
+              </h3>
               {q.rows?.length ? q.rows.map((r: any) => (
-                <div key={r.id} onClick={() => navigate(`/tickets/${r.id}`)} style={{ padding: '8px 0', borderBottom: '1px solid var(--border)', cursor: 'pointer', fontSize: 12 }}>
-                  <b>{r.code}</b> — {r.title}
+                <div key={r.id} onClick={() => navigate(`/tickets/${r.id}`)} style={{ padding: '8px 0', borderBottom: '1px solid var(--border)', cursor: 'pointer', fontSize: 12, color: q.urgent ? 'var(--error)' : 'inherit', fontWeight: q.urgent ? 600 : 400 }}>
+                  <b>{r.code}</b> — <span style={{ color: 'var(--text-primary)', fontWeight: 400 }}>{r.title}</span>
                 </div>
               )) : <div style={{ color: 'var(--text-muted)', fontSize: 12 }}>{t('common.noData')}</div>}
             </div>

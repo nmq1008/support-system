@@ -22,7 +22,10 @@
     "login": "Sign in", "email": "Email", "password": "Password",
     "loginBtn": "Sign in", "welcome": "Welcome back",
     "subtitle": "Sign in to HiDesk", "invalid": "Invalid email or password",
-    "demoAccounts": "Demo accounts (password: Password@123)"
+    "demoAccounts": "Demo accounts (password: Password@123)",
+    "remember": "Remember me", "forgot": "Forgot password?",
+    "forgotHint": "Enter your email and we'll send you a new password.",
+    "forgotSubmit": "Send new password", "forgotSent": "If the email exists, a new password has been sent."
   },
   "roles": {
     "super_admin": "Super Admin", "csm": "CSM", "dev_lead": "Dev Lead",
@@ -38,7 +41,8 @@
     "timeline": "Created vs Closed", "escalation": "Escalation list (P1/P2)",
     "slaAtRisk": "SLA at risk (< 20%)", "unowned": "Unowned > 2h",
     "waitingStale": "Waiting > 24h no reply", "hoursLeft": "hours left",
-    "openTickets": "Open", "created": "Created", "closed": "Closed", "noEscalation": "No open P1/P2 tickets"
+    "openTickets": "Open", "created": "Created", "closed": "Closed", "noEscalation": "No open P1/P2 tickets",
+    "onTime": "On time", "late": "Late", "slaHint": "Share of tickets handled within the SLA deadline"
   },
   "ticket": {
     "code": "Code", "title": "Title", "description": "Description",
@@ -55,7 +59,8 @@
     "review": "Quality review", "reviewDev": "Pick a dev to review", "rating": "Overall",
     "quality": "Quality", "timeliness": "Timeliness", "reviewNote": "Notes",
     "submitReview": "Submit review", "reviewedBy": "Reviewed by", "reviewOnlyDone": "Reviews are available once the ticket is done",
-    "noReviews": "No reviews yet"
+    "noReviews": "No reviews yet", "assigneeSaved": "Assignees updated", "searchName": "Search assignee name…",
+    "creator": "Reporter"
   },
   "devPerf": {
     "title": "Staff evaluation", "avgRating": "Avg rating", "reviews": "Reviews",
@@ -102,7 +107,8 @@
     "workflowHint": "Choose & order the status columns shown on this project's board",
     "savedWorkflow": "Workflow saved", "moveNotAllowed": "Cannot move to this status",
     "customerReview": "You can Close (accept) or Reopen (review) your own tickets",
-    "available": "Available statuses", "selectProject": "Select project"
+    "available": "Available statuses", "selectProject": "Select project",
+    "allProjects": "All projects (overview)", "lockedStep": "Default step — cannot be removed"
   },
   "orgMgmt": {
     "createOrg": "Create customer", "createProject": "Create project", "orgName": "Customer name",

@@ -56,12 +56,36 @@ router.post(
     if (!canViewTicket(req.user!, ticket)) throw forbidden();
 
     const fileUrl = `/uploads/${req.file.filename}`;
+    // Preserve the original (possibly Vietnamese-accented) filename for display.
+    const originalName = Buffer.from(req.file.originalname, 'latin1').toString('utf8');
     const result = await query(
       `INSERT INTO attachments(ticket_id, file_url, file_name, file_size, mime_type, uploaded_by)
        VALUES ($1,$2,$3,$4,$5,$6) RETURNING *`,
-      [ticket.id, fileUrl, req.file.originalname, req.file.size, req.file.mimetype, req.user!.id]
+      [ticket.id, fileUrl, originalName, req.file.size, req.file.mimetype, req.user!.id]
     );
     res.status(201).json(result.rows[0]);
+  })
+);
+
+/** Delete an attachment (uploader or someone who can manage the ticket). Excel row 32. */
+router.delete(
+  '/attachments/:id',
+  asyncHandler(async (req, res) => {
+    const { rows } = await query<any>(
+      `SELECT a.*, t.owner_id, t.customer_id, t.project_id, t.org_id
+       FROM attachments a JOIN tickets t ON t.id = a.ticket_id WHERE a.id = $1`,
+      [req.params.id]
+    );
+    const att = rows[0];
+    if (!att) throw notFound('Tệp không tồn tại');
+    if (att.uploaded_by !== req.user!.id && !canViewTicket(req.user!, att)) throw forbidden();
+    // remove file from disk (best-effort) + row
+    try {
+      const fp = path.join(uploadDir, path.basename(att.file_url));
+      if (fs.existsSync(fp)) fs.unlinkSync(fp);
+    } catch { /* ignore */ }
+    await query('DELETE FROM attachments WHERE id = $1', [att.id]);
+    res.json({ ok: true });
   })
 );
 

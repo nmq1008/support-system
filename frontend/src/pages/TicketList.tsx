@@ -24,6 +24,7 @@ export function TicketList() {
     status: sp.get('status') || '',
     priority: sp.get('priority') || '',
     projectId: sp.get('projectId') || '',
+    ownerId: sp.get('ownerId') || '',
     page: Number(sp.get('page') || 1),
   };
 
@@ -59,8 +60,8 @@ export function TicketList() {
       </div>
 
       <div className="content-scroll">
-        {/* Filters */}
-        <div className="card" style={{ padding: 12, marginBottom: 16, display: 'flex', gap: 10, flexWrap: 'wrap', alignItems: 'center' }}>
+        {/* Filters (sticky at top of the list — Excel row 25) */}
+        <div className="card" style={{ padding: 10, marginBottom: 12, display: 'flex', gap: 10, flexWrap: 'wrap', alignItems: 'center', position: 'sticky', top: 0, zIndex: 5 }}>
           <div className="header-search" style={{ maxWidth: 280, height: 36 }}>
             <Icon name="search" size={16} />
             <input placeholder={t('common.search')} defaultValue={filters.search} onKeyDown={(e) => { if (e.key === 'Enter') setFilter('search', (e.target as HTMLInputElement).value); }} />
@@ -104,6 +105,7 @@ export function TicketList() {
                   <td>
                     <b>{tk.code}</b> {tk.escalated && <span className="tag-chip" style={{ background: '#FEE2E2', color: '#DC2626' }}>ESC</span>}
                     <div className="subline">{tk.title}</div>
+                    {tk.customer_name && <div className="subline">👤 {t('ticket.creator')}: {tk.customer_name}</div>}
                   </td>
                   <td>
                     <span style={{ display: 'flex', alignItems: 'center', gap: 6 }}>{tk.project_name} {tk.project_priority && <ProjectPriorityBadge value={tk.project_priority} />}</span>
@@ -123,11 +125,11 @@ export function TicketList() {
           </table>
         </div>
 
-        {/* Pagination */}
+        {/* Pagination — sticky at bottom so you don't have to scroll (Excel row 29) */}
         {data && data.pagination.totalPages > 1 && (
-          <div style={{ display: 'flex', justifyContent: 'center', gap: 8, marginTop: 16, alignItems: 'center' }}>
+          <div style={{ display: 'flex', justifyContent: 'center', gap: 8, alignItems: 'center', position: 'sticky', bottom: 0, background: 'var(--bg-app)', padding: '10px 0', marginTop: 8, borderTop: '1px solid var(--border)' }}>
             <button className="btn btn-secondary btn-sm" disabled={filters.page <= 1} onClick={() => setFilter('page', String(filters.page - 1))}>‹</button>
-            <span style={{ fontSize: 12 }}>{t('common.page')} {data.pagination.page} / {data.pagination.totalPages}</span>
+            <span style={{ fontSize: 12 }}>{t('common.page')} {data.pagination.page} / {data.pagination.totalPages} · {data.pagination.total} ticket</span>
             <button className="btn btn-secondary btn-sm" disabled={filters.page >= data.pagination.totalPages} onClick={() => setFilter('page', String(filters.page + 1))}>›</button>
           </div>
         )}

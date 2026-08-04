@@ -100,6 +100,26 @@ router.post(
   })
 );
 
+/** Edit own comment (Excel row 33). */
+router.patch(
+  '/:ticketId/comments/:commentId',
+  validateBody(z.object({ content: z.string().min(1).max(20000) })),
+  asyncHandler(async (req, res) => {
+    const { rows } = await query<any>('SELECT * FROM comments WHERE id = $1 AND ticket_id = $2', [
+      req.params.commentId,
+      req.params.ticketId,
+    ]);
+    const comment = rows[0];
+    if (!comment) throw notFound('Comment không tồn tại');
+    if (comment.user_id !== req.user!.id) throw forbidden('Chỉ sửa được bình luận của chính bạn');
+    const updated = await query(
+      `UPDATE comments SET content = $1 WHERE id = $2 RETURNING *`,
+      [richText(req.body.content), comment.id]
+    );
+    res.json(updated.rows[0]);
+  })
+);
+
 /** Delete own comment (or staff who manages the ticket). */
 router.delete(
   '/:ticketId/comments/:commentId',

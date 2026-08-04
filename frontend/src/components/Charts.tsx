@@ -42,12 +42,12 @@ export function DonutChart({ data, size = 160 }: { data: Slice[]; size?: number 
 export function BarChart({ data, height = 180 }: { data: Slice[]; height?: number }) {
   const max = Math.max(1, ...data.map((d) => d.value));
   return (
-    <div style={{ display: 'flex', alignItems: 'flex-end', gap: 16, height, padding: '8px 4px' }}>
+    <div style={{ display: 'flex', alignItems: 'flex-end', gap: 12, height, padding: '8px 4px' }}>
       {data.map((d, i) => (
-        <div key={i} style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 6, height: '100%', justifyContent: 'flex-end' }}>
+        <div key={i} style={{ flex: '1 1 0', minWidth: 0, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 6, height: '100%', justifyContent: 'flex-end' }}>
           <b style={{ fontSize: 12 }}>{d.value}</b>
-          <div style={{ width: '70%', maxWidth: 44, height: `${(d.value / max) * 100}%`, minHeight: 3, background: d.color, borderRadius: '6px 6px 0 0', transition: 'height .3s' }} />
-          <span style={{ fontSize: 12, color: 'var(--text-secondary)' }}>{d.label}</span>
+          <div style={{ width: '60%', maxWidth: 40, height: `${(d.value / max) * 100}%`, minHeight: 3, background: d.color, borderRadius: '6px 6px 0 0', transition: 'height .3s' }} />
+          <span title={d.label} style={{ fontSize: 12, color: 'var(--text-secondary)', width: '100%', textAlign: 'center', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{d.label}</span>
         </div>
       ))}
     </div>

@@ -11,6 +11,8 @@ const ALL_STATUSES: TicketStatus[] = [
   'open', 'in_progress', 'build', 'testing', 'deploy', 'recheck',
   'waiting', 'on_hold', 'complete', 'resolved', 'close', 'reopen',
 ];
+// Core steps of the standard system workflow that cannot be removed (Excel row 15).
+const LOCKED: TicketStatus[] = ['open', 'in_progress', 'close'];
 
 export function WorkflowModal({ projectId, columns, onClose, onSaved }: {
   projectId: string; columns: TicketStatus[]; onClose: () => void; onSaved: (cols: TicketStatus[]) => void;
@@ -65,7 +67,7 @@ export function WorkflowModal({ projectId, columns, onClose, onSaved }: {
             <div style={{ marginLeft: 'auto', display: 'flex', gap: 2 }}>
               <button className="icon-btn" style={{ width: 26, height: 26 }} onClick={() => move(i, -1)} disabled={i === 0}>↑</button>
               <button className="icon-btn" style={{ width: 26, height: 26 }} onClick={() => move(i, 1)} disabled={i === cols.length - 1}>↓</button>
-              <button className="icon-btn" style={{ width: 26, height: 26 }} onClick={() => setCols(cols.filter((x) => x !== s))} disabled={cols.length <= 2}><Icon name="x" size={14} /></button>
+              <button className="icon-btn" style={{ width: 26, height: 26 }} onClick={() => setCols(cols.filter((x) => x !== s))} disabled={cols.length <= 2 || LOCKED.includes(s)} title={LOCKED.includes(s) ? t('board.lockedStep') : ''}><Icon name="x" size={14} /></button>
             </div>
           </div>
         ))}

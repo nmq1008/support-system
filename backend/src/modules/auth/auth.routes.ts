@@ -35,6 +35,29 @@ router.post(
 );
 
 /**
+ * Forgot password (Excel row 1): if the email exists, generate a temporary
+ * password and email it to the user (email adapter logs it in dev). Always
+ * returns a generic success to avoid leaking which emails exist.
+ */
+router.post(
+  '/forgot-password',
+  authLimiter,
+  validateBody(z.object({ email: z.string().email() })),
+  asyncHandler(async (req, res) => {
+    const { rows } = await query<{ id: string }>('SELECT id FROM users WHERE lower(email) = lower($1) AND active = TRUE', [req.body.email]);
+    if (rows[0]) {
+      const temp = `Hi${Math.random().toString(36).slice(2, 8)}@${Math.floor(1000 + Math.random() * 9000)}`;
+      await query('UPDATE users SET password_hash = $1 WHERE id = $2', [await bcrypt.hash(temp, 10), rows[0].id]);
+      try {
+        const { sendEmail } = await import('../notifications/email.adapter');
+        await sendEmail({ userId: rows[0].id, type: 'status_changed', title: 'Mật khẩu mới', message: `Mật khẩu tạm thời của bạn: ${temp} — vui lòng đổi lại sau khi đăng nhập.` });
+      } catch { /* best effort */ }
+    }
+    res.json({ ok: true, message: 'Nếu email tồn tại, mật khẩu mới đã được gửi.' });
+  })
+);
+
+/**
  * @openapi
  * /api/auth/me:
  *   get:

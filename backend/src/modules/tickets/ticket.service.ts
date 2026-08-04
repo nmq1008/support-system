@@ -111,7 +111,7 @@ export async function listTickets(user: AuthUser, filters: ListFilters, page: Pa
   }
   if (filters.search) {
     params.push(`%${filters.search}%`);
-    where.push(`(t.title ILIKE $${i} OR t.description ILIKE $${i})`);
+    where.push(`(t.title ILIKE $${i} OR t.description ILIKE $${i} OR t.code ILIKE $${i})`);
     i++;
   }
   if (filters.tag) {
@@ -391,7 +391,10 @@ export async function updateTicket(user: AuthUser, id: string, input: UpdateTick
     if (input.ownerId !== undefined) {
       sets.push(`owner_id = $${i++}`);
       params.push(input.ownerId);
-      audit.push({ field: 'owner_id', oldVal: row.owner_id, newVal: input.ownerId });
+      // Audit with human names, not raw ids (Excel row 35).
+      const nameOf = async (uid: string | null) =>
+        uid ? (await c.query<{ name: string }>('SELECT name FROM users WHERE id = $1', [uid])).rows[0]?.name || '—' : '(chưa giao)';
+      audit.push({ field: 'owner', oldVal: await nameOf(row.owner_id), newVal: await nameOf(input.ownerId) });
     }
 
     if (sets.length) {
@@ -481,7 +484,17 @@ export async function changeStatus(user: AuthUser, id: string, input: StatusChan
       params.push(now);
     }
     if (input.status === 'reopen') {
-      sets.push(`reopen_count = reopen_count + 1`, `resolved_at = NULL`);
+      // Reopen resets the SLA clock — recompute deadlines from now (Excel row 39).
+      const ctx = await loadPriorityContext(c, row.project_id);
+      const sla = computeSla(row.priority_level, ctx.customerPriority, ctx.projectPriority, now);
+      sets.push(
+        `reopen_count = reopen_count + 1`,
+        `resolved_at = NULL`,
+        `sla_paused_at = NULL`,
+        `sla_response_deadline = $${i++}`,
+        `sla_resolve_deadline = $${i++}`
+      );
+      params.push(sla.responseDeadline, sla.resolveDeadline);
     }
     if (input.status === 'in_progress' && !row.first_response_at) {
       sets.push(`first_response_at = $${i++}`);
@@ -537,6 +550,13 @@ export async function setAssignees(user: AuthUser, id: string, userIds: string[]
   const before = new Set(existing.rows.map((r) => r.user_id));
   const after = new Set(userIds);
 
+  // Resolve names for a readable audit entry (Excel row 36).
+  const names = userIds.length
+    ? (await query<{ name: string }>('SELECT name FROM users WHERE id = ANY($1) ORDER BY name', [userIds])).rows
+        .map((r) => r.name)
+        .join(', ')
+    : '(không có)';
+
   await withTransaction(async (c) => {
     await c.query('DELETE FROM ticket_assignees WHERE ticket_id = $1', [id]);
     for (const uid of userIds) {
@@ -544,8 +564,8 @@ export async function setAssignees(user: AuthUser, id: string, userIds: string[]
     }
     await c.query(
       `INSERT INTO ticket_history(ticket_id, changed_by, action, field, new_value, note)
-       VALUES ($1,$2,'assignees','assignees',$3,'Cập nhật danh sách người xử lý')`,
-      [id, user.id, String(userIds.length)]
+       VALUES ($1,$2,'assignees','assignees',$3,$4)`,
+      [id, user.id, names, `Người xử lý: ${names}`]
     );
   });
 

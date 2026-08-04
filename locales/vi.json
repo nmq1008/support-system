@@ -22,14 +22,17 @@
     "login": "Đăng nhập", "email": "Email", "password": "Mật khẩu",
     "loginBtn": "Đăng nhập", "welcome": "Chào mừng trở lại",
     "subtitle": "Đăng nhập vào hệ thống HiDesk", "invalid": "Email hoặc mật khẩu không đúng",
-    "demoAccounts": "Tài khoản demo (mật khẩu: Password@123)"
+    "demoAccounts": "Tài khoản demo (mật khẩu: Password@123)",
+    "remember": "Nhớ mật khẩu", "forgot": "Quên mật khẩu?",
+    "forgotHint": "Nhập email, hệ thống sẽ gửi mật khẩu mới cho bạn.",
+    "forgotSubmit": "Gửi mật khẩu mới", "forgotSent": "Nếu email tồn tại, mật khẩu mới đã được gửi."
   },
   "roles": {
     "super_admin": "Super Admin", "csm": "CSM", "dev_lead": "Dev Lead",
     "dev": "Dev/Tester", "gate": "CS/BA Gate", "customer_admin": "Customer Admin", "customer": "Khách hàng"
   },
   "dashboard": {
-    "title": "Manager Dashboard",
+    "title": "Bảng điều hành",
     "total": "Tổng ticket", "inProgress": "Đang xử lý", "waitingPickup": "Chờ tiếp nhận",
     "waiting": "Chờ phản hồi", "newToday": "Mới hôm nay", "slaBreached": "Vi phạm SLA",
     "reopenRate": "Tỷ lệ Reopen", "slaCompliance": "Tuân thủ SLA",
@@ -38,7 +41,8 @@
     "timeline": "Tạo vs Đóng ticket", "escalation": "Danh sách Escalation (P1/P2)",
     "slaAtRisk": "SLA sắp vi phạm (< 20%)", "unowned": "Chưa có owner > 2h",
     "waitingStale": "Waiting > 24h chưa phản hồi", "hoursLeft": "giờ còn lại",
-    "openTickets": "Đang xử lý", "created": "Tạo", "closed": "Đóng", "noEscalation": "Không có ticket P1/P2 đang mở"
+    "openTickets": "Đang xử lý", "created": "Tạo", "closed": "Đóng", "noEscalation": "Không có ticket P1/P2 đang mở",
+    "onTime": "Đúng hạn", "late": "Trễ hạn", "slaHint": "Tỷ lệ ticket được xử lý đúng hạn SLA"
   },
   "ticket": {
     "code": "Mã", "title": "Tiêu đề", "description": "Mô tả",
@@ -55,7 +59,8 @@
     "review": "Đánh giá chất lượng", "reviewDev": "Chọn dev để đánh giá", "rating": "Điểm tổng",
     "quality": "Chất lượng", "timeliness": "Đúng hạn", "reviewNote": "Nhận xét",
     "submitReview": "Gửi đánh giá", "reviewedBy": "Đánh giá bởi", "reviewOnlyDone": "Chỉ đánh giá khi ticket đã hoàn thành",
-    "noReviews": "Chưa có đánh giá"
+    "noReviews": "Chưa có đánh giá", "assigneeSaved": "Đã cập nhật người xử lý", "searchName": "Tìm tên người xử lý…",
+    "creator": "Người tạo"
   },
   "devPerf": {
     "title": "Đánh giá nhân viên", "avgRating": "Điểm TB", "reviews": "Lượt đánh giá",
@@ -102,7 +107,8 @@
     "workflowHint": "Chọn & sắp xếp các cột trạng thái hiển thị trên bảng của dự án này",
     "savedWorkflow": "Đã lưu workflow", "moveNotAllowed": "Không thể chuyển sang trạng thái này",
     "customerReview": "Bạn có thể Đóng (xác nhận) hoặc Mở lại (đánh giá) ticket của mình",
-    "available": "Trạng thái có thể thêm", "selectProject": "Chọn dự án"
+    "available": "Trạng thái có thể thêm", "selectProject": "Chọn dự án",
+    "allProjects": "Tất cả dự án (tổng quan)", "lockedStep": "Bước mặc định, không thể xoá"
   },
   "orgMgmt": {
     "createOrg": "Tạo khách hàng", "createProject": "Tạo dự án", "orgName": "Tên khách hàng",

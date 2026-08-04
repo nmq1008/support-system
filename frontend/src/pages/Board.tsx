@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { api, apiError } from '../lib/api';
 import { getSocket } from '../lib/socket';
@@ -15,14 +15,18 @@ import { useAuth } from '../context/AuthContext';
 import { useToast } from '../context/ToastContext';
 
 const DEFAULT_COLUMNS: TicketStatus[] = ['open', 'in_progress', 'build', 'testing', 'deploy', 'recheck', 'resolved', 'close'];
+const CATEGORY_COLOR: Record<string, string> = { bug: '#DC2626', feature: '#7C3AED', help: '#0891B2', billable: '#D97706' };
 
 export function Board() {
   const { t } = useTranslation();
   const { user } = useAuth();
   const toast = useToast();
   const navigate = useNavigate();
+  const [sp, setSp] = useSearchParams();
   const [projects, setProjects] = useState<Project[]>([]);
-  const [projectId, setProjectId] = useState('');
+  // Persist the selected project in the URL so Back from a ticket restores it (Excel row 21).
+  const projectId = sp.get('projectId') || '';
+  const setProjectId = (id: string) => { const n = new URLSearchParams(sp); if (id) n.set('projectId', id); else n.delete('projectId'); setSp(n); };
   const [tickets, setTickets] = useState<Ticket[]>([]);
   const [dragId, setDragId] = useState<string | null>(null);
   const [dragOver, setDragOver] = useState<string | null>(null);
@@ -31,6 +35,7 @@ export function Board() {
 
   const isAdmin = user?.role === 'super_admin' || user?.role === 'csm';
   const isCustomer = user?.role === 'customer' || user?.role === 'customer_admin';
+  const isAll = projectId === 'all';
   const project = projects.find((p) => p.id === projectId);
   const columns = useMemo<TicketStatus[]>(
     () => (project?.board_columns?.length ? (project.board_columns as TicketStatus[]) : DEFAULT_COLUMNS),
@@ -40,13 +45,16 @@ export function Board() {
   useEffect(() => {
     api.get('/projects').then((r) => {
       setProjects(r.data.items);
-      if (r.data.items[0]) setProjectId(r.data.items[0].id);
+      // Default: admins see the all-customers overview (Excel row 17); others → first project.
+      if (!projectId) setProjectId(isAdmin ? 'all' : r.data.items[0]?.id || '');
     });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   async function load() {
     if (!projectId) return;
-    const r = await api.get('/tickets', { params: { projectId, pageSize: 200 } });
+    const params = isAll ? { pageSize: 400 } : { projectId, pageSize: 200 };
+    const r = await api.get('/tickets', { params });
     setTickets(r.data.items);
   }
   useEffect(() => { load(); /* eslint-disable-next-line */ }, [projectId]);
@@ -103,12 +111,14 @@ export function Board() {
         <div className="page-title-row">
           <h1 className="page-title">{t('board.title')}</h1>
           <div className="page-actions">
-            <select className="select btn-sm" style={{ width: 220, height: 34 }} value={projectId} onChange={(e) => setProjectId(e.target.value)}>
+            <select className="select" style={{ width: 230, height: 34 }} value={projectId} onChange={(e) => setProjectId(e.target.value)}>
+              {isAdmin && <option value="all">{t('board.allProjects')}</option>}
               {projects.map((p) => <option key={p.id} value={p.id}>{p.name} · {p.org_name}</option>)}
             </select>
             {isAdmin && project && (
               <button className="btn btn-secondary btn-sm" onClick={() => setWorkflowOpen(true)}><Icon name="admin" size={16} /> {t('board.workflow')}</button>
             )}
+            <button className="btn btn-primary btn-sm" onClick={() => navigate('/tickets/new')}><Icon name="plus" size={16} /> {t('nav.createTicket')}</button>
           </div>
         </div>
       </div>
@@ -137,14 +147,17 @@ export function Board() {
                   {items.map((tk) => {
                     const assignees = (tk.assignees && tk.assignees.length ? tk.assignees.map((a) => a.name) : tk.owner_name ? [tk.owner_name] : []);
                     return (
-                      <div key={tk.id} className="kb-card" draggable onDragStart={() => setDragId(tk.id)} onDragEnd={() => setDragId(null)}
-                        onClick={() => navigate(`/tickets/${tk.id}`)} style={{ opacity: dragId === tk.id ? 0.5 : 1 }}>
+                      <div key={tk.id} className={`kb-card ${tk.sla.breached ? 'breached' : ''}`} draggable onDragStart={() => setDragId(tk.id)} onDragEnd={() => setDragId(null)}
+                        onClick={() => navigate(`/tickets/${tk.id}`)}
+                        style={{ opacity: dragId === tk.id ? 0.5 : 1, borderLeft: `4px solid ${CATEGORY_COLOR[(tk as any).category] || 'var(--border)'}` }}
+                        title={(tk as any).category || ''}>
                         <div style={{ display: 'flex', gap: 6, alignItems: 'center', marginBottom: 8 }}>
                           <PriorityBadge level={tk.priority_level} />
                           <b style={{ fontSize: 12, color: 'var(--color-primary)' }}>{tk.code}</b>
                           {tk.escalated && <span className="tag-chip" style={{ background: '#FEE2E2', color: '#DC2626', marginLeft: 'auto' }}>ESC</span>}
                         </div>
-                        <div style={{ fontSize: 12.5, fontWeight: 500, marginBottom: 10, lineHeight: 1.4 }}>{tk.title}</div>
+                        <div style={{ fontSize: 12.5, fontWeight: 500, marginBottom: 6, lineHeight: 1.4 }}>{tk.title}</div>
+                        {isAll && <div className="subline" style={{ marginBottom: 8 }}>{tk.project_name} · {tk.org_name}</div>}
                         <div style={{ display: 'flex', gap: 4, flexWrap: 'wrap', marginBottom: 10 }}>
                           {tk.project_priority && <ProjectPriorityBadge value={tk.project_priority} />}
                           {tk.customer_priority && <CustomerPriorityBadge value={tk.customer_priority} />}

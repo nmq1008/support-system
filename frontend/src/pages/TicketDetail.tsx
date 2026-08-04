@@ -29,6 +29,8 @@ export function TicketDetailPage() {
   const [owners, setOwners] = useState<User[]>([]);
   const [stagedFiles, setStagedFiles] = useState<File[]>([]);
   const [editAssignees, setEditAssignees] = useState(false);
+  const [assigneeSearch, setAssigneeSearch] = useState('');
+  const [editingComment, setEditingComment] = useState<{ id: string; content: string } | null>(null);
   const isStaff = user && STAFF_ROLES.includes(user.role);
 
   async function load() {
@@ -85,8 +87,28 @@ export function TicketDetailPage() {
   }
 
   async function saveAssignees(ids: string[]) {
-    await api.put(`/tickets/${id}/assignees`, { userIds: ids });
-    load();
+    try {
+      await api.put(`/tickets/${id}/assignees`, { userIds: ids });
+      toast(t('ticket.assigneeSaved'), 'success'); // Excel row 37
+      load();
+    } catch (e) { toast(apiError(e), 'error'); }
+  }
+
+  async function saveEditComment() {
+    if (!editingComment) return;
+    try {
+      await api.patch(`/tickets/${id}/comments/${editingComment.id}`, { content: editingComment.content });
+      setEditingComment(null);
+      load();
+    } catch (e) { toast(apiError(e), 'error'); }
+  }
+  async function deleteComment(commentId: string) {
+    try { await api.delete(`/tickets/${id}/comments/${commentId}`); load(); }
+    catch (e) { toast(apiError(e), 'error'); }
+  }
+  async function deleteAttachment(attId: string) {
+    try { await api.delete(`/attachments/${attId}`); toast(t('common.delete'), 'success'); load(); }
+    catch (e) { toast(apiError(e), 'error'); }
   }
 
   async function uploadFile(file: File) {
@@ -134,7 +156,9 @@ export function TicketDetailPage() {
                 {ticket.sla.breached && <span className="tag-chip" style={{ background: '#FEE2E2', color: '#DC2626' }}>{t('ticket.slaBreached')}</span>}
                 {ticket.tags.map((tg) => <span key={tg.id} className="tag-chip" style={{ background: `${tg.color}22`, color: tg.color }}>#{tg.name}</span>)}
               </div>
-              <p style={{ whiteSpace: 'pre-wrap', margin: 0 }} dangerouslySetInnerHTML={{ __html: ticket.description || '<i style="color:var(--text-muted)">—</i>' }} />
+              {/* Prominent problem description (Excel row 22) */}
+              <div style={{ fontSize: 12, color: 'var(--text-secondary)', fontWeight: 600, marginBottom: 6 }}>{t('ticket.description')}</div>
+              <div style={{ whiteSpace: 'pre-wrap', margin: 0, fontSize: 14, lineHeight: 1.6, background: 'var(--bg-sunken)', borderRadius: 10, padding: '14px 16px', minHeight: 88 }} dangerouslySetInnerHTML={{ __html: ticket.description || '<i style="color:var(--text-muted)">—</i>' }} />
               {/* Template field values */}
               {ticket.fields.length > 0 && (
                 <div style={{ marginTop: 16, display: 'grid', gap: 8 }}>
@@ -153,15 +177,17 @@ export function TicketDetailPage() {
               <h3 className="card-title">{t('ticket.attachments')}</h3>
               <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', marginBottom: 10 }}>
                 {ticket.attachments.map((a) => (
-                  <a key={a.id} href={a.file_url} target="_blank" rel="noreferrer" className="tag-chip" style={{ background: 'var(--bg-sunken)' }}>
-                    <Icon name="paperclip" size={14} /> {a.file_name}
-                  </a>
+                  <span key={a.id} className="tag-chip" style={{ background: 'var(--bg-sunken)' }}>
+                    <a href={a.file_url} target="_blank" rel="noreferrer" style={{ display: 'inline-flex', alignItems: 'center', gap: 4, color: 'inherit' }}><Icon name="paperclip" size={14} /> {a.file_name}</a>
+                    <button className="icon-btn" style={{ width: 18, height: 18 }} title={t('common.delete')} onClick={() => deleteAttachment(a.id)}><Icon name="x" size={12} /></button>
+                  </span>
                 ))}
                 {ticket.attachments.length === 0 && <span style={{ color: 'var(--text-muted)', fontSize: 12 }}>{t('common.noData')}</span>}
               </div>
               <label className="btn btn-secondary btn-sm" style={{ cursor: 'pointer' }}>
                 <Icon name="paperclip" size={14} /> Upload
-                <input type="file" hidden onChange={(e) => e.target.files?.[0] && uploadFile(e.target.files[0])} />
+                {/* multiple files at once (Excel row 31) */}
+                <input type="file" hidden multiple accept="image/*,video/*,.pdf,.xlsx,.xls" onChange={async (e) => { if (e.target.files?.length) { await uploadFiles(Array.from(e.target.files)); toast(t('common.save'), 'success'); load(); } e.currentTarget.value=''; }} />
               </label>
             </div>
 
@@ -173,11 +199,29 @@ export function TicketDetailPage() {
                   <div key={c.id} style={{ display: 'flex', gap: 10 }}>
                     <Avatar name={c.user_name} size={32} />
                     <div style={{ flex: 1, background: c.is_internal ? '#FEF3C7' : 'var(--bg-sunken)', borderRadius: 10, padding: '8px 12px' }}>
-                      <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 12 }}>
+                      <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 12, alignItems: 'center' }}>
                         <b>{c.user_name} {c.is_internal && <span className="tag-chip" style={{ background: '#F59E0B33', color: '#B45309' }}>{t('ticket.internal')}</span>}</b>
-                        <span style={{ color: 'var(--text-muted)' }}>{relativeTime(c.created_at, i18n.language)}</span>
+                        <span style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                          <span style={{ color: 'var(--text-muted)' }}>{relativeTime(c.created_at, i18n.language)}</span>
+                          {c.user_id === user?.id && editingComment?.id !== c.id && (
+                            <>
+                              <button className="icon-btn" style={{ width: 22, height: 22 }} title={t('common.update')} onClick={() => setEditingComment({ id: c.id, content: c.content.replace(/<[^>]+>/g, '') })}><Icon name="template" size={12} /></button>
+                              <button className="icon-btn" style={{ width: 22, height: 22 }} title={t('common.delete')} onClick={() => deleteComment(c.id)}><Icon name="trash" size={12} /></button>
+                            </>
+                          )}
+                        </span>
                       </div>
-                      <div style={{ fontSize: 12, marginTop: 2 }} dangerouslySetInnerHTML={{ __html: c.content }} />
+                      {editingComment?.id === c.id ? (
+                        <div style={{ marginTop: 4 }}>
+                          <textarea className="textarea" style={{ minHeight: 56 }} value={editingComment.content} onChange={(e) => setEditingComment({ id: c.id, content: e.target.value })} />
+                          <div style={{ display: 'flex', gap: 6, marginTop: 4 }}>
+                            <button className="btn btn-primary btn-sm" onClick={saveEditComment}>{t('common.save')}</button>
+                            <button className="btn btn-secondary btn-sm" onClick={() => setEditingComment(null)}>{t('common.cancel')}</button>
+                          </div>
+                        </div>
+                      ) : (
+                        <div style={{ fontSize: 12, marginTop: 2 }} dangerouslySetInnerHTML={{ __html: c.content }} />
+                      )}
                       {c.attachments && c.attachments.length > 0 && (
                         <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', marginTop: 8 }}>
                           {c.attachments.map((a) => (
@@ -253,20 +297,34 @@ export function TicketDetailPage() {
                   {isStaff && <button className="btn btn-ghost btn-sm" style={{ height: 24, padding: '0 6px' }} onClick={() => setEditAssignees((v) => !v)}><Icon name={editAssignees ? 'check' : 'plus'} size={14} /></button>}
                 </div>
                 {!editAssignees ? (
-                  ticket.assignees.length ? <AvatarStack names={ticket.assignees.map((a) => a.name)} size={26} max={6} /> : <span style={{ fontSize: 12, color: 'var(--text-muted)' }}>—</span>
+                  ticket.assignees.length ? (
+                    <div style={{ display: 'flex', flexWrap: 'wrap', gap: 4 }}>
+                      {ticket.assignees.map((a) => (
+                        <span key={a.id} className="tag-chip" style={{ background: 'var(--color-primary-10)', color: 'var(--color-primary)' }}>
+                          <Avatar name={a.name} size={16} /> {a.name}
+                        </span>
+                      ))}
+                    </div>
+                  ) : <span style={{ fontSize: 12, color: 'var(--text-muted)' }}>—</span>
                 ) : (
-                  <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>
-                    {owners.map((o) => {
-                      const on = ticket.assignees.some((a) => a.id === o.id);
-                      return (
-                        <button key={o.id} className="tag-chip" onClick={() => {
-                          const ids = on ? ticket.assignees.filter((a) => a.id !== o.id).map((a) => a.id) : [...ticket.assignees.map((a) => a.id), o.id];
-                          saveAssignees(ids);
-                        }} style={{ cursor: 'pointer', border: '1px solid var(--border)', background: on ? 'var(--color-primary)' : 'var(--bg-surface)', color: on ? '#fff' : 'var(--text-primary)' }}>
-                          {o.name}
-                        </button>
-                      );
-                    })}
+                  <div>
+                    {/* Searchable assignee picker (Excel row 23) */}
+                    <input className="input" style={{ height: 32, marginBottom: 8 }} placeholder={t('ticket.searchName')} value={assigneeSearch} onChange={(e) => setAssigneeSearch(e.target.value)} />
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: 4, maxHeight: 180, overflowY: 'auto' }}>
+                      {owners.filter((o) => o.name.toLowerCase().includes(assigneeSearch.toLowerCase())).map((o) => {
+                        const on = ticket.assignees.some((a) => a.id === o.id);
+                        return (
+                          <button key={o.id} onClick={() => {
+                            const ids = on ? ticket.assignees.filter((a) => a.id !== o.id).map((a) => a.id) : [...ticket.assignees.map((a) => a.id), o.id];
+                            saveAssignees(ids);
+                          }} style={{ cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 8, border: '1px solid var(--border)', borderRadius: 8, padding: '6px 10px', background: on ? 'var(--color-primary-10)' : 'var(--bg-surface)', textAlign: 'left' }}>
+                            <Avatar name={o.name} size={22} />
+                            <span style={{ flex: 1, fontSize: 12 }}>{o.name}</span>
+                            {on && <Icon name="check" size={14} />}
+                          </button>
+                        );
+                      })}
+                    </div>
                   </div>
                 )}
               </div>
@@ -287,7 +345,8 @@ export function TicketDetailPage() {
                     <div>
                       {h.action === 'status' && <>{t('common.status')}: <b>{h.old_status ? t(`status.${h.old_status}`) : '—'}</b> → <b>{t(`status.${h.new_status}`)}</b></>}
                       {h.action === 'create' && <b>{t('common.create')}</b>}
-                      {h.action === 'update' && <>{h.field}: {h.new_value}</>}
+                      {h.action === 'update' && <>{h.field}: <b>{h.new_value}</b></>}
+                      {h.action === 'assignees' && <>{t('ticket.assignees')}: <b>{h.new_value}</b></>}
                       {h.action === 'jira_link' && <>Jira link: {h.new_value}</>}
                     </div>
                     {h.note && <div style={{ color: 'var(--text-secondary)', fontStyle: 'italic' }}>{h.note}</div>}
