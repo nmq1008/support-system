@@ -19,6 +19,7 @@ export interface Ticket {
   project_name?: string; org_name?: string; owner_name?: string; customer_name?: string;
   project_priority?: string; customer_priority?: string;
   assignees?: { id: string; name: string }[];
+  tags?: Tag[];
   statusColor: string; priorityColor: string; escalated?: boolean; reopen_count?: number;
   jira_issue_id?: string | null; jira_issue_url?: string | null;
   created_at: string; updated_at?: string;

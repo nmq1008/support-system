@@ -60,7 +60,11 @@
     "quality": "Chất lượng", "timeliness": "Đúng hạn", "reviewNote": "Nhận xét",
     "submitReview": "Gửi đánh giá", "reviewedBy": "Đánh giá bởi", "reviewOnlyDone": "Chỉ đánh giá khi ticket đã hoàn thành",
     "noReviews": "Chưa có đánh giá", "assigneeSaved": "Đã cập nhật người xử lý", "searchName": "Tìm tên người xử lý…",
-    "creator": "Người tạo"
+    "creator": "Người tạo", "tags": "Nhãn"
+  },
+  "bucket": {
+    "all": "Tất cả", "bucketOpen": "Mở/Mở lại", "bucketActive": "Đang xử lý",
+    "bucketWaiting": "Chờ/Tạm dừng", "bucketDone": "Đã đóng", "projects": "Dự án"
   },
   "devPerf": {
     "title": "Đánh giá nhân viên", "avgRating": "Điểm TB", "reviews": "Lượt đánh giá",

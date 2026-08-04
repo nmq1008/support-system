@@ -85,17 +85,21 @@ export async function listTickets(user: AuthUser, filters: ListFilters, page: Pa
   let i = params.length + 1;
   const where: string[] = [scope.clause];
 
+  // status accepts a comma-separated list (status buckets — Excel row 5).
   if (filters.status) {
-    params.push(filters.status);
-    where.push(`t.status = $${i++}`);
+    const list = String(filters.status).split(',').filter(Boolean);
+    params.push(list);
+    where.push(`t.status = ANY($${i++})`);
   }
   if (filters.priority) {
     params.push(filters.priority);
     where.push(`t.priority_level = $${i++}`);
   }
+  // projectId accepts a comma-separated list (multi-project filter — Excel row 30).
   if (filters.projectId) {
-    params.push(filters.projectId);
-    where.push(`t.project_id = $${i++}`);
+    const list = String(filters.projectId).split(',').filter(Boolean);
+    params.push(list);
+    where.push(`t.project_id = ANY($${i++})`);
   }
   if (filters.orgId) {
     params.push(filters.orgId);
@@ -133,7 +137,10 @@ export async function listTickets(user: AuthUser, filters: ListFilters, page: Pa
             o.customer_priority, ow.name AS owner_name, cu.name AS customer_name,
             COALESCE((SELECT json_agg(json_build_object('id', u.id, 'name', u.name))
                       FROM ticket_assignees ta JOIN users u ON u.id = ta.user_id
-                      WHERE ta.ticket_id = t.id), '[]') AS assignees
+                      WHERE ta.ticket_id = t.id), '[]') AS assignees,
+            COALESCE((SELECT json_agg(json_build_object('id', g.id, 'name', g.name, 'color', g.color))
+                      FROM ticket_tags tt JOIN tags g ON g.id = tt.tag_id
+                      WHERE tt.ticket_id = t.id), '[]') AS tags
      FROM tickets t
      JOIN projects p ON p.id = t.project_id
      JOIN organizations o ON o.id = t.org_id

@@ -60,7 +60,11 @@
     "quality": "Quality", "timeliness": "Timeliness", "reviewNote": "Notes",
     "submitReview": "Submit review", "reviewedBy": "Reviewed by", "reviewOnlyDone": "Reviews are available once the ticket is done",
     "noReviews": "No reviews yet", "assigneeSaved": "Assignees updated", "searchName": "Search assignee name…",
-    "creator": "Reporter"
+    "creator": "Reporter", "tags": "Tags"
+  },
+  "bucket": {
+    "all": "All", "bucketOpen": "Open/Reopen", "bucketActive": "In progress",
+    "bucketWaiting": "Waiting/Hold", "bucketDone": "Closed", "projects": "Projects"
   },
   "devPerf": {
     "title": "Staff evaluation", "avgRating": "Avg rating", "reviews": "Reviews",

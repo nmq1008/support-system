@@ -1,4 +1,33 @@
-import { TicketStatus } from './types';
+import { Role, TicketStatus } from './types';
+
+/**
+ * Coarse status buckets so users can track tickets easily without wading through
+ * all 12 statuses (Excel row 5). Used as quick tabs on the ticket list.
+ */
+export const STATUS_BUCKETS: { key: string; label: string; statuses: TicketStatus[] }[] = [
+  { key: '', label: 'all', statuses: [] },
+  { key: 'open', label: 'bucketOpen', statuses: ['open', 'reopen'] },
+  { key: 'active', label: 'bucketActive', statuses: ['in_progress', 'build', 'testing', 'deploy', 'recheck'] },
+  { key: 'waiting', label: 'bucketWaiting', statuses: ['waiting', 'on_hold'] },
+  { key: 'done', label: 'bucketDone', statuses: ['complete', 'resolved', 'close'] },
+];
+
+/** Statuses relevant to each role — keeps the status filter focused per user. */
+export const ROLE_STATUSES: Record<Role, TicketStatus[]> = {
+  super_admin: [],
+  csm: [],
+  dev: ['in_progress', 'build', 'testing', 'deploy', 'recheck', 'complete', 'waiting', 'on_hold'],
+  dev_lead: ['in_progress', 'build', 'testing', 'deploy', 'recheck', 'complete'],
+  gate: ['open', 'reopen', 'waiting', 'on_hold', 'resolved', 'close'],
+  customer_admin: ['open', 'reopen', 'waiting', 'resolved', 'complete', 'close'],
+  customer: ['open', 'reopen', 'waiting', 'resolved', 'complete', 'close'],
+};
+
+/** The status options to show a user in the filter (all statuses if none configured). */
+export function statusOptionsForRole(role: Role, all: TicketStatus[]): TicketStatus[] {
+  const set = ROLE_STATUSES[role];
+  return set && set.length ? all.filter((s) => set.includes(s)) : all;
+}
 
 /** Mirror of backend TRANSITIONS (for UX; backend enforces authoritatively). */
 export const TRANSITIONS: Record<TicketStatus, TicketStatus[]> = {
