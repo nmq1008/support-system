@@ -25,7 +25,17 @@
     "demoAccounts": "Tài khoản demo (mật khẩu: Password@123)",
     "remember": "Nhớ mật khẩu", "forgot": "Quên mật khẩu?",
     "forgotHint": "Nhập email, hệ thống sẽ gửi mật khẩu mới cho bạn.",
-    "forgotSubmit": "Gửi mật khẩu mới", "forgotSent": "Nếu email tồn tại, mật khẩu mới đã được gửi."
+    "forgotSubmit": "Gửi mật khẩu mới", "forgotSent": "Nếu email tồn tại, mật khẩu mới đã được gửi.",
+    "heroTagline": "Nền tảng Ticket & Hỗ trợ chuyên nghiệp cho đội Service Operations (BHBT)",
+    "feat1": "Quản lý đa khách hàng & dự án tập trung",
+    "feat2": "SLA tự động 3 cấp, cảnh báo vi phạm realtime",
+    "feat3": "Bảng Kanban kéo-thả, workflow tuỳ chỉnh",
+    "feat4": "Báo cáo & đánh giá chất lượng nhân sự",
+    "statOrg": "Doanh nghiệp", "statTicket": "Ticket", "statRole": "Vai trò",
+    "signInStart": "Đăng nhập để bắt đầu làm việc",
+    "showPass": "Hiện mật khẩu", "hidePass": "Ẩn mật khẩu",
+    "tryTitle": "Tài khoản trải nghiệm", "tryHint": "Chọn vai trò để đăng nhập nhanh (mật khẩu điền sẵn)",
+    "secured": "Bảo mật bằng JWT · Dữ liệu mã hoá", "copyright": "© 2026 HiDesk — HiStaff. Bảo lưu mọi quyền."
   },
   "roles": {
     "super_admin": "Super Admin", "csm": "CSM", "dev_lead": "Dev Lead",

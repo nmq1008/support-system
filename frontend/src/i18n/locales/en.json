@@ -25,7 +25,17 @@
     "demoAccounts": "Demo accounts (password: Password@123)",
     "remember": "Remember me", "forgot": "Forgot password?",
     "forgotHint": "Enter your email and we'll send you a new password.",
-    "forgotSubmit": "Send new password", "forgotSent": "If the email exists, a new password has been sent."
+    "forgotSubmit": "Send new password", "forgotSent": "If the email exists, a new password has been sent.",
+    "heroTagline": "A professional Ticket & Support platform for Service Operations (BHBT)",
+    "feat1": "Centralised multi-customer & multi-project management",
+    "feat2": "Automated 3-level SLA with realtime breach alerts",
+    "feat3": "Drag-and-drop Kanban with custom workflows",
+    "feat4": "Reporting & staff quality evaluation",
+    "statOrg": "Businesses", "statTicket": "Tickets", "statRole": "Roles",
+    "signInStart": "Sign in to get started",
+    "showPass": "Show password", "hidePass": "Hide password",
+    "tryTitle": "Try it out", "tryHint": "Pick a role to sign in instantly (password pre-filled)",
+    "secured": "Secured with JWT · Encrypted data", "copyright": "© 2026 HiDesk — HiStaff. All rights reserved."
   },
   "roles": {
     "super_admin": "Super Admin", "csm": "CSM", "dev_lead": "Dev Lead",
