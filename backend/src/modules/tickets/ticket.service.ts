@@ -5,12 +5,12 @@ import { plainText, richText } from '../../utils/sanitize';
 import { AuthUser } from '../../types/express';
 import { PageParams } from '../../utils/pagination';
 import {
-  computeSla,
   isBreached,
   PRIORITY_COLOR,
   shouldEscalateImmediately,
   slaRemainingFraction,
 } from '../../domain/priority';
+import { computeConfiguredSla } from '../admin/sla.service';
 import { STATUS_COLOR, assertTransition, CLOSED_STATUSES } from '../../domain/status';
 import { CustomerPriority, PriorityLevel, ProjectPriority, TicketStatus } from '../../domain/types';
 import { canManageTicket, canViewTicket, ticketScope } from './access';
@@ -273,7 +273,7 @@ export async function createTicket(user: AuthUser, input: CreateTicketInput) {
 
   const created = await withTransaction(async (c) => {
     const ctx = await loadPriorityContext(c, input.projectId);
-    const sla = computeSla(level, ctx.customerPriority, ctx.projectPriority);
+    const sla = await computeConfiguredSla(level, ctx.customerPriority, ctx.projectPriority);
     const escalate = shouldEscalateImmediately(ctx.customerPriority, level);
     const code = await nextTicketCode(c);
     const customerId = user.role === 'customer' ? user.id : input.customerId ?? null;
@@ -390,7 +390,7 @@ export async function updateTicket(user: AuthUser, id: string, input: UpdateTick
     if (input.priorityLevel !== undefined && input.priorityLevel !== row.priority_level) {
       // recompute SLA on priority change
       const ctx = await loadPriorityContext(c, row.project_id);
-      const sla = computeSla(input.priorityLevel, ctx.customerPriority, ctx.projectPriority, new Date(row.created_at));
+      const sla = await computeConfiguredSla(input.priorityLevel, ctx.customerPriority, ctx.projectPriority, new Date(row.created_at));
       sets.push(`priority_level = $${i++}`, `sla_response_deadline = $${i++}`, `sla_resolve_deadline = $${i++}`);
       params.push(input.priorityLevel, sla.responseDeadline, sla.resolveDeadline);
       audit.push({ field: 'priority_level', oldVal: row.priority_level, newVal: input.priorityLevel });
@@ -493,7 +493,7 @@ export async function changeStatus(user: AuthUser, id: string, input: StatusChan
     if (input.status === 'reopen') {
       // Reopen resets the SLA clock — recompute deadlines from now (Excel row 39).
       const ctx = await loadPriorityContext(c, row.project_id);
-      const sla = computeSla(row.priority_level, ctx.customerPriority, ctx.projectPriority, now);
+      const sla = await computeConfiguredSla(row.priority_level, ctx.customerPriority, ctx.projectPriority, now);
       sets.push(
         `reopen_count = reopen_count + 1`,
         `resolved_at = NULL`,

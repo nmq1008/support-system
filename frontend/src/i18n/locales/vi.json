@@ -11,7 +11,7 @@
     "language": "Ngôn ngữ", "darkMode": "Chế độ tối", "logout": "Đăng xuất",
     "createdAt": "Ngày tạo", "owner": "Người xử lý", "customer": "Khách hàng",
     "project": "Dự án", "org": "Khách hàng/Tổ chức", "priority": "Mức ưu tiên",
-    "status": "Trạng thái", "unassigned": "Chưa giao", "page": "Trang"
+    "status": "Trạng thái", "unassigned": "Chưa giao", "page": "Trang", "error": "Có lỗi xảy ra"
   },
   "nav": {
     "dashboard": "Dashboard", "board": "Bảng Kanban", "tickets": "Danh sách ticket", "createTicket": "Tạo ticket",
@@ -115,7 +115,15 @@
     "created": "Đã tạo user", "updated": "Đã cập nhật user", "homeOrg": "Org của khách hàng",
     "selectProjects": "Chọn dự án…", "noAccess": "Chưa gán quyền dự án nào",
     "userType": "Loại tài khoản", "typeStaff": "Nhân sự", "typeCustomer": "Khách hàng",
-    "level": "Cấp độ / Vai trò", "searchProject": "Tìm dự án theo tên hoặc mã…", "selected": "đã chọn"
+    "level": "Cấp độ / Vai trò", "searchProject": "Tìm dự án theo tên hoặc mã…", "selected": "đã chọn",
+    "devLevel": "Cấp bậc Dev"
+  },
+  "sla": {
+    "edit": "Cấu hình SLA", "resetDefault": "Đặt lại mặc định", "saved": "Đã lưu cấu hình SLA",
+    "reset": "Đã đặt lại về mặc định", "invalid": "Giờ SLA phải lớn hơn 0",
+    "responseResolve": "phản hồi / xử lý (giờ)",
+    "hint": "Nhập số giờ phản hồi / xử lý cho từng mức ưu tiên × hạng khách hàng. Giá trị này áp dụng ngay cho ticket mới.",
+    "projectFactorNote": "Hệ số dự án nhân thêm"
   },
   "profile": {
     "title": "Hồ sơ cá nhân", "info": "Thông tin", "changePassword": "Đổi mật khẩu",

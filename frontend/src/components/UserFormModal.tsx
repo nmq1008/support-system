@@ -30,6 +30,7 @@ export function UserFormModal({ userId, orgs, projects, currentRole, onClose, on
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [role, setRole] = useState<Role>(isCustomerAdmin ? 'customer' : 'dev');
+  const [devLevel, setDevLevel] = useState<number | ''>('');
   const [language, setLanguage] = useState<'vi' | 'en'>('vi');
   const [orgId, setOrgId] = useState('');
   const [active, setActive] = useState(true);
@@ -52,6 +53,7 @@ export function UserFormModal({ userId, orgs, projects, currentRole, onClose, on
     api.get(`/users/${userId}`).then((r) => {
       const u = r.data;
       setName(u.name); setEmail(u.email); setRole(u.role); setLanguage(u.language);
+      setDevLevel(u.dev_level ?? '');
       setOrgId(u.org_id || ''); setActive(u.active);
       setProjectIds(u.projectIds || []); setManagedOrgIds(u.managedOrgIds || []);
     }).catch((e) => setError(apiError(e)));
@@ -59,6 +61,7 @@ export function UserFormModal({ userId, orgs, projects, currentRole, onClose, on
 
   const isStaff = userType === 'staff';
   const isCustomer = userType === 'customer';
+  const isDev = role === 'dev' || role === 'dev_lead'; // dev seniority applies here
 
   function setType(tp: UType) {
     if (userType === tp) return;
@@ -80,13 +83,14 @@ export function UserFormModal({ userId, orgs, projects, currentRole, onClose, on
   async function save() {
     setError(''); setSaving(true);
     try {
+      const dl = isDev ? (devLevel === '' ? null : Number(devLevel)) : null;
       if (isEdit) {
-        await api.patch(`/users/${userId}`, { name, role, language, active, ...(password ? { password } : {}) });
+        await api.patch(`/users/${userId}`, { name, role, devLevel: dl, language, active, ...(password ? { password } : {}) });
         await api.patch(`/users/${userId}/access`, { projectIds, managedOrgIds });
         toast(t('userMgmt.updated'), 'success');
       } else {
         await api.post('/users', {
-          name, email, password, role, language,
+          name, email, password, role, devLevel: dl, language,
           orgId: isCustomer ? orgId || null : null,
           projectIds, managedOrgIds,
         });
@@ -147,7 +151,16 @@ export function UserFormModal({ userId, orgs, projects, currentRole, onClose, on
             {roleOptions.map((r) => <option key={r} value={r}>{t(`roles.${r}`)}</option>)}
           </select>
         </div>
-        <div className="field" style={{ width: 120 }}>
+        {isDev && (
+          <div className="field" style={{ width: 130 }}>
+            <label>{t('userMgmt.devLevel')}</label>
+            <select className="select" value={devLevel} onChange={(e) => setDevLevel(e.target.value === '' ? '' : Number(e.target.value))}>
+              <option value="">—</option>
+              {Array.from({ length: 10 }, (_, k) => k + 1).map((n) => <option key={n} value={n}>L{n}</option>)}
+            </select>
+          </div>
+        )}
+        <div className="field" style={{ width: 110 }}>
           <label>{t('userMgmt.language')}</label>
           <select className="select" value={language} onChange={(e) => setLanguage(e.target.value as 'vi' | 'en')}>
             <option value="vi">VI</option><option value="en">EN</option>

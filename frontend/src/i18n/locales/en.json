@@ -11,7 +11,7 @@
     "language": "Language", "darkMode": "Dark mode", "logout": "Logout",
     "createdAt": "Created", "owner": "Owner", "customer": "Customer",
     "project": "Project", "org": "Organization", "priority": "Priority",
-    "status": "Status", "unassigned": "Unassigned", "page": "Page"
+    "status": "Status", "unassigned": "Unassigned", "page": "Page", "error": "Something went wrong"
   },
   "nav": {
     "dashboard": "Dashboard", "board": "Kanban board", "tickets": "Tickets", "createTicket": "Create ticket",
@@ -115,7 +115,15 @@
     "created": "User created", "updated": "User updated", "homeOrg": "Customer's org",
     "selectProjects": "Select projects…", "noAccess": "No project access assigned",
     "userType": "Account type", "typeStaff": "Staff", "typeCustomer": "Customer",
-    "level": "Level / Role", "searchProject": "Search project by name or code…", "selected": "selected"
+    "level": "Level / Role", "searchProject": "Search project by name or code…", "selected": "selected",
+    "devLevel": "Dev level"
+  },
+  "sla": {
+    "edit": "Configure SLA", "resetDefault": "Reset to default", "saved": "SLA configuration saved",
+    "reset": "Reset to defaults", "invalid": "SLA hours must be greater than 0",
+    "responseResolve": "response / resolve (hours)",
+    "hint": "Enter response / resolve hours for each priority × customer tier. Applied immediately to new tickets.",
+    "projectFactorNote": "Project factor multiplies further"
   },
   "profile": {
     "title": "My profile", "info": "Information", "changePassword": "Change password",

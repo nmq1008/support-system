@@ -5,12 +5,18 @@ import { CustomerPriorityBadge, PriorityBadge, ProjectPriorityBadge } from '../c
 import { UserFormModal } from '../components/UserFormModal';
 import { OrgProjectModal } from '../components/OrgProjectModal';
 import { useAuth } from '../context/AuthContext';
+import { useToast } from '../context/ToastContext';
 import { Icon } from '../components/Icon';
+
+const P_LEVELS = ['P1', 'P2', 'P3', 'P4', 'P5'] as const;
+const C_TIERS = ['platinum', 'gold', 'silver', 'bronze'] as const;
+const cellKey = (lvl: string, cp: string) => `${lvl}:${cp}`;
 
 type Tab = 'sla' | 'orgs' | 'users';
 
 export function Admin() {
   const { t } = useTranslation();
+  const toast = useToast();
   const { user } = useAuth();
   const isCustomerAdmin = user?.role === 'customer_admin';
   const canEditUsers = user?.role === 'super_admin' || user?.role === 'csm';
@@ -24,6 +30,44 @@ export function Admin() {
   const [users, setUsers] = useState<any[]>([]);
   const [userModal, setUserModal] = useState<string | null | undefined>(undefined); // undefined=closed, null=create
   const [orgModal, setOrgModal] = useState<'org' | 'project' | null>(null);
+  // Editable SLA matrix state
+  const [editSla, setEditSla] = useState(false);
+  const [draft, setDraft] = useState<Record<string, { response: string; resolve: string }>>({});
+  const [savingSla, setSavingSla] = useState(false);
+
+  function loadSla() { return api.get('/admin/sla').then((r) => setSla(r.data)).catch(() => {}); }
+  function seedDraft(data: any) {
+    const d: Record<string, { response: string; resolve: string }> = {};
+    for (const lvl of P_LEVELS) for (const cp of C_TIERS) {
+      const cell = data.matrix.find((m: any) => m.priority_level === lvl && m.customer_priority === cp);
+      d[cellKey(lvl, cp)] = { response: String(Number(cell?.response_hours ?? '')), resolve: String(Number(cell?.resolve_hours ?? '')) };
+    }
+    setDraft(d);
+  }
+  function startEditSla() { if (sla) { seedDraft(sla); setEditSla(true); } }
+  async function saveSla() {
+    const cells: any[] = [];
+    for (const lvl of P_LEVELS) for (const cp of C_TIERS) {
+      const v = draft[cellKey(lvl, cp)];
+      const response = Number(v?.response), resolve = Number(v?.resolve);
+      if (!(response > 0) || !(resolve > 0)) { toast(t('sla.invalid'), 'error'); return; }
+      cells.push({ priorityLevel: lvl, customerPriority: cp, responseHours: response, resolveHours: resolve });
+    }
+    setSavingSla(true);
+    try {
+      await api.patch('/admin/sla', { cells });
+      await loadSla();
+      setEditSla(false);
+      toast(t('sla.saved'), 'success');
+    } catch { toast(t('common.error'), 'error'); }
+    finally { setSavingSla(false); }
+  }
+  async function resetSla() {
+    setSavingSla(true);
+    try { await api.post('/admin/sla/reset'); await loadSla(); setEditSla(false); toast(t('sla.reset'), 'success'); }
+    catch { toast(t('common.error'), 'error'); }
+    finally { setSavingSla(false); }
+  }
 
   function loadUsers() { api.get('/users').then((r) => setUsers(r.data.items)).catch(() => {}); }
   function loadOrgs() {
@@ -50,6 +94,16 @@ export function Admin() {
     <>
       <div className="page-header"><div className="page-title-row"><h1 className="page-title">{t('nav.admin')}</h1>
         <div className="page-actions">
+          {tab === 'sla' && canEditUsers && !editSla && (
+            <button className="btn btn-primary btn-sm" onClick={startEditSla}><Icon name="settings" size={16} /> {t('sla.edit')}</button>
+          )}
+          {tab === 'sla' && canEditUsers && editSla && (
+            <>
+              <button className="btn btn-ghost btn-sm" onClick={resetSla} disabled={savingSla}>{t('sla.resetDefault')}</button>
+              <button className="btn btn-secondary btn-sm" onClick={() => setEditSla(false)} disabled={savingSla}>{t('common.cancel')}</button>
+              <button className="btn btn-primary btn-sm" onClick={saveSla} disabled={savingSla}>{savingSla ? <span className="spinner" /> : t('common.save')}</button>
+            </>
+          )}
           {tab === 'users' && canCreateUsers && (
             <button className="btn btn-primary btn-sm" onClick={() => setUserModal(null)}><Icon name="plus" size={16} /> {t('userMgmt.create')}</button>
           )}
@@ -71,22 +125,46 @@ export function Admin() {
         </div>
 
         {tab === 'sla' && sla && (
-          <div className="card" style={{ padding: 0, overflow: 'hidden' }}>
-            <table className="table">
-              <thead><tr><th>{t('common.priority')}</th><th>Platinum ×0.5</th><th>Gold ×0.75</th><th>Silver ×1</th><th>Bronze ×1.5</th></tr></thead>
-              <tbody>
-                {['P1', 'P2', 'P3', 'P4', 'P5'].map((lvl) => (
-                  <tr key={lvl} style={{ cursor: 'default' }}>
-                    <td><PriorityBadge level={lvl as any} /> <span className="subline">base {sla.base[lvl].responseHours}h/{sla.base[lvl].resolveHours}h</span></td>
-                    {['platinum', 'gold', 'silver', 'bronze'].map((cp) => {
-                      const cell = sla.matrix.find((m: any) => m.priority_level === lvl && m.customer_priority === cp);
-                      return <td key={cp}>{cell ? `${Number(cell.response_hours)}h / ${Number(cell.resolve_hours)}h` : '—'}</td>;
-                    })}
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+          <>
+            <div className="subline" style={{ marginBottom: 10 }}>
+              {t('sla.hint')} · {t('sla.projectFactorNote')}: critical ×{sla.projectFactor.critical}, high ×{sla.projectFactor.high}, medium ×{sla.projectFactor.medium}, low ×{sla.projectFactor.low}
+            </div>
+            <div className="card" style={{ padding: 0, overflow: 'auto' }}>
+              <table className="table">
+                <thead><tr>
+                  <th>{t('common.priority')}</th>
+                  <th>Platinum ×0.5</th><th>Gold ×0.75</th><th>Silver ×1</th><th>Bronze ×1.5</th>
+                </tr></thead>
+                <tbody>
+                  {P_LEVELS.map((lvl) => (
+                    <tr key={lvl} style={{ cursor: 'default' }}>
+                      <td><PriorityBadge level={lvl as any} /> <span className="subline">{t('sla.responseResolve')}</span></td>
+                      {C_TIERS.map((cp) => {
+                        const k = cellKey(lvl, cp);
+                        if (editSla) {
+                          const v = draft[k] || { response: '', resolve: '' };
+                          const upd = (field: 'response' | 'resolve', val: string) =>
+                            setDraft((d) => ({ ...d, [k]: { ...d[k], [field]: val } }));
+                          return (
+                            <td key={cp}>
+                              <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
+                                <input className="input" style={{ width: 58, height: 30, padding: '0 6px', textAlign: 'center' }} type="number" min="0" step="0.25" value={v.response} onChange={(e) => upd('response', e.target.value)} />
+                                <span className="subline">/</span>
+                                <input className="input" style={{ width: 58, height: 30, padding: '0 6px', textAlign: 'center' }} type="number" min="0" step="0.25" value={v.resolve} onChange={(e) => upd('resolve', e.target.value)} />
+                                <span className="subline">h</span>
+                              </div>
+                            </td>
+                          );
+                        }
+                        const cell = sla.matrix.find((m: any) => m.priority_level === lvl && m.customer_priority === cp);
+                        return <td key={cp}>{cell ? `${Number(cell.response_hours)}h / ${Number(cell.resolve_hours)}h` : '—'}</td>;
+                      })}
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </>
         )}
 
         {tab === 'orgs' && (
@@ -119,7 +197,10 @@ export function Admin() {
                   <tr key={u.id} style={{ cursor: 'default' }}>
                     <td><b>{u.name}</b></td>
                     <td>{u.email}</td>
-                    <td><span className="tag-chip" style={{ background: 'var(--color-primary-10)', color: 'var(--color-primary)' }}>{t(`roles.${u.role}`)}</span></td>
+                    <td>
+                      <span className="tag-chip" style={{ background: 'var(--color-primary-10)', color: 'var(--color-primary)' }}>{t(`roles.${u.role}`)}</span>
+                      {u.dev_level && <span className="tag-chip" style={{ marginLeft: 6, background: 'var(--bg-sunken)', color: 'var(--text-secondary)', fontWeight: 700 }}>L{u.dev_level}</span>}
+                    </td>
                     <td>{u.language?.toUpperCase()}</td>
                     <td style={{ textAlign: 'right' }}>
                       {canEditUsers && (

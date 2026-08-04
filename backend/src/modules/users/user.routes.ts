@@ -37,7 +37,7 @@ router.get(
       where.push(`org_id = $${i++}`);
     }
     const { rows } = await query(
-      `SELECT id, name, email, role, org_id, language, avatar, active, created_at
+      `SELECT id, name, email, role, dev_level, org_id, language, avatar, active, created_at
        FROM users WHERE ${where.join(' AND ')} ORDER BY name`,
       params
     );
@@ -50,6 +50,7 @@ const createSchema = z.object({
   email: z.string().email(),
   password: z.string().min(6),
   role: z.enum(ROLES as [string, ...string[]]),
+  devLevel: z.number().int().min(1).max(10).nullable().optional(),
   orgId: z.string().uuid().nullable().optional(),
   language: z.enum(['vi', 'en']).default('vi'),
   projectIds: z.array(z.string().uuid()).optional(),
@@ -67,11 +68,13 @@ router.post(
       if (b.role !== 'customer') throw badRequest('ROLE_FORBIDDEN', 'Customer Admin chỉ tạo được Customer');
       b.orgId = req.user!.orgId;
     }
+    // Dev seniority only applies to developer roles.
+    const devLevel = b.role === 'dev' || b.role === 'dev_lead' ? b.devLevel ?? null : null;
     const hash = await bcrypt.hash(b.password, 10);
     const { rows } = await query(
-      `INSERT INTO users(name, email, password_hash, role, org_id, language)
-       VALUES ($1,$2,$3,$4,$5,$6) RETURNING id, name, email, role, org_id, language, created_at`,
-      [plainText(b.name), b.email.toLowerCase(), hash, b.role, b.orgId ?? null, b.language]
+      `INSERT INTO users(name, email, password_hash, role, dev_level, org_id, language)
+       VALUES ($1,$2,$3,$4,$5,$6,$7) RETURNING id, name, email, role, dev_level, org_id, language, created_at`,
+      [plainText(b.name), b.email.toLowerCase(), hash, b.role, devLevel, b.orgId ?? null, b.language]
     );
     const user = rows[0];
     for (const pid of b.projectIds || []) {
@@ -112,7 +115,7 @@ router.get(
   requireRole(...ADMIN_ROLES),
   asyncHandler(async (req, res) => {
     const { rows } = await query(
-      `SELECT id, name, email, role, org_id, language, avatar, active, created_at
+      `SELECT id, name, email, role, dev_level, org_id, language, avatar, active, created_at
        FROM users WHERE id = $1`,
       [req.params.id]
     );
@@ -135,6 +138,7 @@ router.patch(
     z.object({
       name: z.string().min(1).optional(),
       role: z.enum(ROLES as [string, ...string[]]).optional(),
+      devLevel: z.number().int().min(1).max(10).nullable().optional(),
       language: z.enum(['vi', 'en']).optional(),
       active: z.boolean().optional(),
       password: z.string().min(6).optional(),
@@ -151,12 +155,16 @@ router.patch(
     for (const [key, col] of [['name', 'name'], ['role', 'role'], ['language', 'language'], ['active', 'active']] as const) {
       if (req.body[key] !== undefined) { sets.push(`${col} = $${i++}`); params.push(req.body[key]); }
     }
+    // Dev level: honour explicit input, but a non-developer role always clears it.
+    const nonDevRole = req.body.role !== undefined && req.body.role !== 'dev' && req.body.role !== 'dev_lead';
+    if (nonDevRole) { sets.push(`dev_level = $${i++}`); params.push(null); }
+    else if (req.body.devLevel !== undefined) { sets.push(`dev_level = $${i++}`); params.push(req.body.devLevel); }
     if (req.body.password) { sets.push(`password_hash = $${i++}`); params.push(await bcrypt.hash(req.body.password, 10)); }
     if (!sets.length) return res.json({ ok: true });
     params.push(req.params.id);
     const { rows } = await query(
       `UPDATE users SET ${sets.join(', ')} WHERE id = $${i}
-       RETURNING id, name, email, role, org_id, language, active`,
+       RETURNING id, name, email, role, dev_level, org_id, language, active`,
       params
     );
     if (!rows[0]) throw badRequest('USER_NOT_FOUND', 'User không tồn tại');
