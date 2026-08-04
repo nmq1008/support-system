@@ -62,19 +62,25 @@
   --font-en: 'Inter', 'Be Vietnam Pro', sans-serif;
 }
 
-/* ── Dark mode ── */
+/* ── Dark mode — dimension.dev inspired (ultra-dark + glass) ── */
 :root[data-theme='dark'] {
-  --bg-app: #0B1120;
-  --bg-surface: #131A2A;
-  --bg-sunken: #0F1626;
-  --text-primary: #E8EDF7;
-  --text-secondary: #9AA6BE;
-  --text-muted: #6B7793;
-  --border: #24304A;
-  --border-strong: #33415F;
-  --color-black-5: #1A2338;
-  --color-primary-10: #16233F;
-  --color-primary-20: #1E3A63;
-  --shadow-card: 0 4px 16px rgba(0,0,0,0.45);
-  --shadow-dropdown: 0 10px 24px rgba(0,0,0,0.55);
+  --bg-app: #080C14;
+  --bg-surface: #0D131F;
+  --bg-sunken: #0A0F18;
+  --text-primary: #F1F5F9;
+  --text-secondary: #94A3B8;
+  --text-muted: #64748B;
+  --border: rgba(255,255,255,0.08);
+  --border-strong: rgba(255,255,255,0.16);
+  --color-black-5: #111827;
+
+  /* electric blue accent */
+  --color-primary: #3B82F6;
+  --color-primary-hover: #2f6fe0;
+  --color-primary-50: #60A5FA;
+  --color-primary-10: rgba(59,130,246,0.12);
+  --color-primary-20: rgba(59,130,246,0.22);
+
+  --shadow-card: 0 8px 30px rgba(0,0,0,0.55);
+  --shadow-dropdown: 0 12px 30px rgba(0,0,0,0.6);
 }

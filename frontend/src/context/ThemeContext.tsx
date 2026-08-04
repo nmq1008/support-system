@@ -4,7 +4,7 @@ const Ctx = createContext<{ theme: 'light' | 'dark'; toggle: () => void }>({ the
 
 export function ThemeProvider({ children }: { children: ReactNode }) {
   const [theme, setTheme] = useState<'light' | 'dark'>(
-    () => (localStorage.getItem('hidesk_theme') as 'light' | 'dark') || 'light'
+    () => (localStorage.getItem('hidesk_theme') as 'light' | 'dark') || 'dark'
   );
 
   useEffect(() => {
