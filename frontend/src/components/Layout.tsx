@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { NavLink, Outlet, useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useAuth } from '../context/AuthContext';
@@ -25,9 +25,19 @@ export function Layout() {
   const [collapsed, setCollapsed] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
   const [search, setSearch] = useState('');
+  const searchRef = useRef<HTMLInputElement>(null);
   const navigate = useNavigate();
 
   const nav = NAV.filter((n) => !n.roles || (user && n.roles.includes(user.role)));
+
+  // ⌘K / Ctrl+K focuses the global search
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => {
+      if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'k') { e.preventDefault(); searchRef.current?.focus(); }
+    };
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  }, []);
 
   function submitSearch(e: React.FormEvent) {
     e.preventDefault();
@@ -47,7 +57,8 @@ export function Layout() {
         <div className="header-mid">
           <form className="header-search" onSubmit={submitSearch}>
             <Icon name="search" size={18} />
-            <input value={search} onChange={(e) => setSearch(e.target.value)} placeholder={t('common.search')} />
+            <input ref={searchRef} value={search} onChange={(e) => setSearch(e.target.value)} placeholder={t('common.search')} />
+            <span className="kbd">⌘K</span>
           </form>
         </div>
         <div className="header-right">

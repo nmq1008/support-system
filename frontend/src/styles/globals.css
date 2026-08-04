@@ -159,6 +159,44 @@ input, select, textarea { font-family: inherit; }
 .login-note { display: flex; align-items: center; gap: 6px; background: #ECFDF5; color: #047857; border: 1px solid #A7F3D0; border-radius: 8px; padding: 9px 12px; font-size: 12.5px; margin-bottom: 14px; }
 .login-copy { margin-top: 24px; text-align: center; font-size: 11.5px; color: var(--text-muted); }
 
+/* ══ dimension.dev dark — glass surfaces, glass chrome, micro-glow ══ */
+:root[data-theme='dark'] .card,
+:root[data-theme='dark'] .stat-card {
+  background: rgba(255,255,255,0.04);
+  backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
+  transition: box-shadow .18s ease, border-color .18s ease, transform .18s ease;
+}
+:root[data-theme='dark'] .card:hover,
+:root[data-theme='dark'] .stat-card:hover {
+  border-color: rgba(59,130,246,0.35);
+  box-shadow: 0 0 22px rgba(59,130,246,0.15);
+}
+:root[data-theme='dark'] .kb-card:hover { border-color: rgba(59,130,246,0.4); box-shadow: 0 0 22px rgba(59,130,246,0.18); }
+:root[data-theme='dark'] .tpl-tile:hover, :root[data-theme='dark'] .tpl-card:hover { box-shadow: 0 0 22px rgba(59,130,246,0.15); }
+
+/* Glass topbar + sidebar */
+:root[data-theme='dark'] .app-header { background: rgba(8,12,20,0.72); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); }
+:root[data-theme='dark'] .sidebar { background: rgba(255,255,255,0.02); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); }
+/* active nav item: blue left border + blue-tinted bg (spec) */
+:root[data-theme='dark'] .sidebar-item.active { box-shadow: inset 2px 0 0 var(--color-primary); }
+:root[data-theme='dark'] .header-search { background: rgba(255,255,255,0.03); }
+
+/* Cmd+K hint chip */
+.kbd { display: inline-flex; align-items: center; gap: 2px; font-size: 11px; font-weight: 600; color: var(--text-muted); border: 1px solid var(--border); border-radius: 5px; padding: 1px 6px; background: var(--bg-sunken); flex-shrink: 0; }
+
+/* Notification bell glow when unread */
+.icon-btn.bell-glow { color: var(--color-primary); box-shadow: 0 0 0 0 rgba(59,130,246,0.5); animation: bellGlow 1.8s ease-in-out infinite; }
+@keyframes bellGlow { 0%,100% { box-shadow: 0 0 8px rgba(59,130,246,0.15); } 50% { box-shadow: 0 0 16px rgba(59,130,246,0.5); } }
+
+/* Kanban: flash + settle when a card lands in a new column */
+.kb-card.moved { animation: kbMoved .7s ease; z-index: 2; }
+@keyframes kbMoved {
+  0%   { box-shadow: 0 0 0 0 rgba(59,130,246,0.6); transform: scale(1.04); border-color: var(--color-primary); }
+  60%  { box-shadow: 0 0 0 8px rgba(59,130,246,0); }
+  100% { box-shadow: 0 0 0 0 rgba(59,130,246,0); transform: scale(1); }
+}
+@media (prefers-reduced-motion: reduce) { .kb-card.moved, .icon-btn.bell-glow { animation: none; } }
+
 /* ── Create ticket ── */
 .create-grid { display: grid; grid-template-columns: minmax(0,1fr) 320px; gap: 16px; align-items: start; max-width: 1100px; }
 @media (max-width: 900px) { .create-grid { grid-template-columns: 1fr; } }

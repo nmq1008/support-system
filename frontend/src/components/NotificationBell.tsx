@@ -50,7 +50,7 @@ export function NotificationBell() {
 
   return (
     <div ref={ref} style={{ position: 'relative' }}>
-      <button className="icon-btn" onClick={() => setOpen((o) => !o)} aria-label={t('notif.title')}>
+      <button className={`icon-btn ${unread > 0 ? 'bell-glow' : ''}`} onClick={() => setOpen((o) => !o)} aria-label={t('notif.title')}>
         <Icon name="bell" size={20} />
         {unread > 0 && <span className="badge-dot">{unread > 9 ? '9+' : unread}</span>}
       </button>

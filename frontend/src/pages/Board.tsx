@@ -32,6 +32,7 @@ export function Board() {
   const [dragOver, setDragOver] = useState<string | null>(null);
   const [pendingMeta, setPendingMeta] = useState<{ ticket: Ticket; target: TicketStatus } | null>(null);
   const [workflowOpen, setWorkflowOpen] = useState(false);
+  const [justMoved, setJustMoved] = useState<string | null>(null);
 
   const isAdmin = user?.role === 'super_admin' || user?.role === 'csm';
   const isCustomer = user?.role === 'customer' || user?.role === 'customer_admin';
@@ -70,8 +71,10 @@ export function Board() {
   const byStatus = (s: TicketStatus) => tickets.filter((tk) => tk.status === s);
 
   async function applyMove(ticket: Ticket, target: TicketStatus, note = '', meta: Record<string, string> = {}) {
-    // optimistic
+    // optimistic + flash/settle animation on the moved card
     setTickets((prev) => prev.map((tk) => (tk.id === ticket.id ? { ...tk, status: target } : tk)));
+    setJustMoved(ticket.id);
+    setTimeout(() => setJustMoved((m) => (m === ticket.id ? null : m)), 760);
     try {
       await api.post(`/tickets/${ticket.id}/status`, { status: target, note, meta });
       load();
@@ -147,7 +150,7 @@ export function Board() {
                   {items.map((tk) => {
                     const assignees = (tk.assignees && tk.assignees.length ? tk.assignees.map((a) => a.name) : tk.owner_name ? [tk.owner_name] : []);
                     return (
-                      <div key={tk.id} className={`kb-card ${tk.sla.breached ? 'breached' : ''}`} draggable onDragStart={() => setDragId(tk.id)} onDragEnd={() => setDragId(null)}
+                      <div key={tk.id} className={`kb-card ${tk.sla.breached ? 'breached' : ''} ${justMoved === tk.id ? 'moved' : ''}`} draggable onDragStart={() => setDragId(tk.id)} onDragEnd={() => setDragId(null)}
                         onClick={() => navigate(`/tickets/${tk.id}`)}
                         style={{ opacity: dragId === tk.id ? 0.5 : 1, borderLeft: `4px solid ${CATEGORY_COLOR[(tk as any).category] || 'var(--border)'}` }}
                         title={(tk as any).category || ''}>
