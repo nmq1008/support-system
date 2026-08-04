@@ -13,6 +13,7 @@ import { Reports } from './pages/Reports';
 import { Admin } from './pages/Admin';
 import { Board } from './pages/Board';
 import { Profile } from './pages/Profile';
+import { Landing } from './pages/Landing';
 
 function Protected({ children }: { children: JSX.Element }) {
   const { user, loading } = useAuth();
@@ -28,6 +29,7 @@ export default function App() {
         <AuthProvider>
           <ToastProvider>
             <Routes>
+              <Route path="/" element={<Landing />} />
               <Route path="/login" element={<Login />} />
               <Route
                 element={
@@ -45,7 +47,6 @@ export default function App() {
                 <Route path="/templates" element={<TemplateBuilder />} />
                 <Route path="/reports" element={<Reports />} />
                 <Route path="/admin" element={<Admin />} />
-                <Route path="/" element={<Navigate to="/dashboard" replace />} />
               </Route>
               <Route path="*" element={<Navigate to="/" replace />} />
             </Routes>
