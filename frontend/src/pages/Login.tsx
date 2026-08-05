@@ -53,13 +53,23 @@ export function Login() {
 
   return (
     <div className="login-basic">
-      {/* Helpdesk-themed background */}
+      {/* Cinematic helpdesk background */}
       <div className="login-bg" aria-hidden>
+        <div className="lb-aurora lb-a1" />
+        <div className="lb-aurora lb-a2" />
+        <div className="lb-aurora lb-a3" />
+        <div className="lb-grid" />
         {BG_ICONS.map((ic, i) => (
-          <span key={i} className="login-bg-ic" style={{ top: ic.top, left: ic.left, transform: `rotate(${ic.rot}deg)` }}>
+          <span key={i} className="login-bg-ic" style={{ top: ic.top, left: ic.left, transform: `rotate(${ic.rot}deg)`, animationDelay: `${i * 0.6}s` }}>
             <Icon name={ic.name} size={ic.size} />
           </span>
         ))}
+        {/* floating helpdesk activity */}
+        <div className="lb-chip lb-c1"><span className="lb-dot ok" /> HD-1042 <span className="lb-pill">Resolved</span></div>
+        <div className="lb-chip lb-c2"><Icon name="bell" size={14} /> New ticket assigned</div>
+        <div className="lb-ring lb-c3"><span className="in">96%<small>SLA</small></span></div>
+        <div className="lb-chip lb-c5"><Icon name="check2" size={14} /> SLA on track</div>
+        <div className="lb-bubble lb-c4"><span className="em">CS</span> How can we help you today?</div>
       </div>
 
       <button className="login-lang" onClick={() => i18n.changeLanguage(i18n.language === 'vi' ? 'en' : 'vi')}>{i18n.language === 'vi' ? 'EN' : 'VI'}</button>
