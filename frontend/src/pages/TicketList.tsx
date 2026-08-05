@@ -118,16 +118,20 @@ export function TicketList() {
               {!loading && data?.items.map((tk) => (
                 <tr key={tk.id} onClick={() => navigate(`/tickets/${tk.id}`)}>
                   <td>
-                    <span style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-                      <PriorityBadge level={tk.priority_level} /><b>{tk.code}</b>
-                      {tk.escalated && <span className="tag-chip" style={{ background: '#FEE2E2', color: '#DC2626' }}>ESC</span>}
-                    </span>
-                    <div className="subline">{tk.title}</div>
-                    {tk.customer_name && <div className="subline">👤 {tk.customer_name}</div>}
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: 5 }}>
+                      <span style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                        <PriorityBadge level={tk.priority_level} /><b>{tk.code}</b>
+                        {tk.escalated && <span className="tag-chip" style={{ background: '#FEE2E2', color: '#DC2626' }}>ESC</span>}
+                      </span>
+                      <div className="subline">{tk.title}</div>
+                      {tk.customer_name && <div className="subline">👤 {tk.customer_name}</div>}
+                    </div>
                   </td>
                   <td>
-                    <span style={{ display: 'flex', alignItems: 'center', gap: 6 }}>{tk.project_name} {tk.project_priority && <ProjectPriorityBadge value={tk.project_priority} />}</span>
-                    <div className="subline" style={{ display: 'flex', alignItems: 'center', gap: 6 }}>{tk.org_name} {tk.customer_priority && <CustomerPriorityBadge value={tk.customer_priority} />}</div>
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: 5 }}>
+                      <span style={{ display: 'flex', alignItems: 'center', gap: 6 }}>{tk.project_name} {tk.project_priority && <ProjectPriorityBadge value={tk.project_priority} />}</span>
+                      <div className="subline" style={{ display: 'flex', alignItems: 'center', gap: 6 }}>{tk.org_name} {tk.customer_priority && <CustomerPriorityBadge value={tk.customer_priority} />}</div>
+                    </div>
                   </td>
                   <td>
                     <div style={{ display: 'flex', flexWrap: 'wrap', gap: 4, maxWidth: 150 }}>
