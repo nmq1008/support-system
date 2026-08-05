@@ -1,203 +1,210 @@
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
+import { useAuth } from '../context/AuthContext';
+import { Icon } from '../components/Icon';
 import '../styles/landing.css';
 
-const VIDEO_SRC =
-  'https://d8j0ntlcm91z4.cloudfront.net/user_38xzZboKViGWJOttwIXH07lWA1P/hf_20260314_131748_f2ca2a28-fed7-44c8-b9a9-bd9acdd5ec31.mp4';
-
-const NAV_LINKS = ['Overview', 'Features', 'Solutions', 'Pricing', 'Customers', 'Contact'];
-const LOGOS = ['Microsoft', 'Shopify', 'Notion', 'Slack', 'Vercel', 'GitHub'];
-
-const METRICS = [
-  { v: '99.98%', l: 'System Uptime' },
-  { v: '3M+', l: 'Tickets Resolved' },
-  { v: '120+', l: 'Countries' },
-  { v: '24/7', l: 'AI Automation' },
-];
-
 const FEATURES = [
-  {
-    icon: 'inbox',
-    title: 'Omnichannel Inbox',
-    lead: 'Unified conversations across every channel.',
-    chips: ['Email', 'Chat', 'Facebook', 'Zalo', 'WhatsApp', 'Telegram'],
-  },
-  {
-    icon: 'ai',
-    title: 'AI Agent',
-    lead: 'Resolve routine questions before they reach a human.',
-    chips: ['Automatic replies', 'Summaries', 'Suggested responses', 'Knowledge retrieval'],
-  },
-  {
-    icon: 'ticket',
-    title: 'Smart Ticketing',
-    lead: 'Structure, prioritize and route every request.',
-    chips: ['Priorities', 'SLA', 'Automation', 'Assignment Rules', 'Tags'],
-  },
-  {
-    icon: 'chart',
-    title: 'Analytics',
-    lead: 'Measure what matters, in real time.',
-    chips: ['Response Time', 'Resolution Time', 'Customer Satisfaction', 'Team Productivity'],
-  },
+  { icon: 'zap', title: 'Smart Ticket Routing', desc: 'Tự động phân loại và định tuyến ticket tới đúng đội, đúng người xử lý.' },
+  { icon: 'timer', title: 'SLA Engine + Countdown', desc: 'SLA 3 cấp theo khách hàng × dự án, đếm ngược & cảnh báo trước khi vi phạm.' },
+  { icon: 'users', title: 'Customer Self-service', desc: 'Khách hàng tự tạo, theo dõi và đánh giá ticket của mình trong cổng riêng.' },
+  { icon: 'barchart', title: 'Realtime Dashboard', desc: 'Bảng điều hành realtime: tải việc, escalation, tuân thủ SLA theo thời gian thực.' },
+  { icon: 'link', title: 'Jira & Slack Integration', desc: 'Sinh Jira issue tự động và đồng bộ trạng thái, thông báo qua Slack.' },
+  { icon: 'globe', title: 'Song ngữ VI & EN', desc: 'Toàn bộ giao diện, email và thông báo hỗ trợ Tiếng Việt và Tiếng Anh.' },
 ];
 
-function FeatureIcon({ name }: { name: string }) {
-  const p = { width: 22, height: 22, viewBox: '0 0 24 24', fill: 'none', stroke: 'currentColor', strokeWidth: 1.6, strokeLinecap: 'round' as const, strokeLinejoin: 'round' as const };
-  switch (name) {
-    case 'inbox':
-      return (<svg {...p}><path d="M22 12h-6l-2 3h-4l-2-3H2" /><path d="M5.45 5.11 2 12v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-6l-3.45-6.89A2 2 0 0 0 16.76 4H7.24a2 2 0 0 0-1.79 1.11z" /></svg>);
-    case 'ai':
-      return (<svg {...p}><path d="M12 3v3M12 18v3M3 12h3M18 12h3M5.6 5.6l2.1 2.1M16.3 16.3l2.1 2.1M18.4 5.6l-2.1 2.1M7.7 16.3l-2.1 2.1" /><circle cx="12" cy="12" r="3.2" /></svg>);
-    case 'ticket':
-      return (<svg {...p}><path d="M3 9a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2 2 2 0 0 0 0 6 2 2 0 0 1-2 2H5a2 2 0 0 1-2-2 2 2 0 0 0 0-6z" /><path d="M13 7v10" strokeDasharray="2 2" /></svg>);
-    case 'chart':
-      return (<svg {...p}><path d="M3 3v18h18" /><path d="M7 15l3-4 3 2 4-6" /></svg>);
-    default:
-      return null;
-  }
-}
+const LIFECYCLE: { s: string; c: string }[] = [
+  { s: 'Open', c: '#3B82F6' }, { s: 'In Progress', c: '#F97316' }, { s: 'Build', c: '#8B5CF6' },
+  { s: 'Testing', c: '#EAB308' }, { s: 'Deploy', c: '#10B981' }, { s: 'Recheck', c: '#06B6D4' },
+  { s: 'Complete', c: '#86EFAC' }, { s: 'Close', c: '#374151' },
+];
+const BRANCH: { s: string; c: string }[] = [
+  { s: 'Waiting', c: '#EF4444' }, { s: 'On Hold', c: '#92400E' }, { s: 'Reopen', c: '#DC2626' },
+];
 
-function Social({ href, label, children }: { href: string; label: string; children: React.ReactNode }) {
-  return (
-    <a href={href} aria-label={label} className="liquid-glass">
-      {children}
-    </a>
-  );
-}
+const TESTIMONIALS = [
+  { q: 'HiDesk giúp đội mình cắt giảm 40% thời gian xử lý ticket. SLA rõ ràng, không còn bỏ sót.', n: 'Nguyễn Minh', c: 'Head of Support · Tiki' },
+  { q: 'Cổng khách hàng và Kanban cực trực quan. Khách tự theo dõi được, đội mình nhẹ hẳn.', n: 'Trần Thu Hương', c: 'CSM · FPT Software' },
+  { q: 'Dashboard realtime và chấm điểm dev là thứ mình tìm mãi mới có. Rất premium.', n: 'Lê Hoàng', c: 'Ops Lead · VNG' },
+];
+
+const PRICING = [
+  { name: 'Starter', price: '0', unit: '/tháng', pop: false, feats: ['1 dự án', '5 người dùng', 'Ticket & SLA cơ bản', 'Email hỗ trợ'] },
+  { name: 'Pro', price: '990k', unit: '/tháng', pop: true, feats: ['Không giới hạn dự án', '30 người dùng', 'Kanban + Workflow tuỳ chỉnh', 'Dashboard realtime', 'Jira & Slack'] },
+  { name: 'Enterprise', price: 'Liên hệ', unit: '', pop: false, feats: ['Không giới hạn người dùng', 'SSO & phân quyền nâng cao', 'Đánh giá nhân sự', 'SLA riêng & hỗ trợ 24/7'] },
+];
+
+const AV = ['#3B82F6', '#8B5CF6', '#10B981', '#F59E0B', '#EF4444'];
 
 export function Landing() {
   const navigate = useNavigate();
+  const { t, i18n } = useTranslation();
+  const { user } = useAuth();
+  const goApp = () => navigate(user ? '/dashboard' : '/login');
+  const [lit, setLit] = useState(0);
 
-  // The app shell is overflow:hidden; opt this long page into scrolling.
+  // allow the (long) landing page to scroll — the app is overflow:hidden by default
   useEffect(() => {
-    document.documentElement.classList.add('hd-scrollable');
-    return () => document.documentElement.classList.remove('hd-scrollable');
+    document.documentElement.classList.add('dl-scrollable');
+    return () => document.documentElement.classList.remove('dl-scrollable');
   }, []);
 
-  const svgProps = { width: 18, height: 18, viewBox: '0 0 24 24', fill: 'none', stroke: 'currentColor', strokeWidth: 1.7, strokeLinecap: 'round' as const, strokeLinejoin: 'round' as const };
+  // status badges light up in sequence
+  useEffect(() => {
+    const total = LIFECYCLE.length + BRANCH.length;
+    let i = 0;
+    const id = setInterval(() => { i += 1; setLit(i); if (i >= total) clearInterval(id); }, 180);
+    return () => clearInterval(id);
+  }, []);
 
   return (
-    <div className="hd">
-      <video className="hd-video" autoPlay muted loop playsInline poster="">
-        <source src={VIDEO_SRC} type="video/mp4" />
-      </video>
-
-      <div className="hd-layer">
-        {/* ── NAV ── */}
-        <nav className="hd-nav">
-          <div className="hd-brand">
-            <span className="hd-logo">
-              <svg width={18} height={18} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.8} strokeLinecap="round" strokeLinejoin="round">
-                <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
-              </svg>
-            </span>
-            <span className="hd-brand-name">HiDesk</span>
+    <div className="dl">
+      <div className="dl-grid" />
+      <div className="dl-wrap">
+        {/* ── Nav ── */}
+        <nav className="dl-nav">
+          <div className="dl-container dl-nav-inner">
+            <span className="dl-logo">HiDesk<span className="dl-logo-dot" /></span>
+            <div className="dl-nav-links">
+              <a onClick={goApp}>Features</a><a onClick={goApp}>Pricing</a><a onClick={goApp}>Docs</a>
+            </div>
+            <div className="dl-nav-right">
+              <button className="dl-lang" onClick={() => i18n.changeLanguage(i18n.language === 'vi' ? 'en' : 'vi')}>{i18n.language === 'vi' ? 'VI' : 'EN'}</button>
+              <button className="dl-link-btn" onClick={goApp}>{user ? 'Dashboard' : 'Log in'}</button>
+              <button className="dl-btn dl-btn-blue" onClick={goApp}>Get Started</button>
+            </div>
           </div>
-          <div className="hd-navlinks">
-            {NAV_LINKS.map((l) => (
-              <a key={l} href={`#${l.toLowerCase()}`}>{l}</a>
-            ))}
-          </div>
-          <button className="hd-btn hd-btn-pill liquid-glass" onClick={() => navigate('/login')}>
-            Request Demo
-          </button>
         </nav>
 
-        {/* ── HERO ── */}
-        <header className="hd-hero">
-          <h1 className="hd-headline animate-fade-rise">
-            Support customers.<br />
-            <em className="not-italic">Resolve faster.</em><br />
-            Delight every conversation.
-          </h1>
-          <p className="hd-sub animate-fade-rise-delay">
-            HiDesk centralizes tickets, live chat, email, social channels, and AI automation into
-            one intelligent workspace—helping teams deliver exceptional customer support with speed
-            and clarity.
-          </p>
-          <div className="hd-hero-cta animate-fade-rise-delay-2">
-            <button className="hd-btn hd-btn-primary" onClick={() => navigate('/login')}>Start Free Trial</button>
-            <button className="hd-btn hd-btn-glass liquid-glass" onClick={() => navigate('/login')}>Book a Demo</button>
+        {/* ── Hero ── */}
+        <header className="dl-hero dl-container">
+          <span className="dl-badge">Helpdesk reimagined <Icon name="arrow-right" size={14} /></span>
+          <h1 className="dl-h1">Support your customers, <em>effortlessly.</em></h1>
+          <p className="dl-lead">HiDesk kết nối đội ngũ và khách hàng trong một không gian làm việc thông minh. Theo dõi ticket, đảm bảo SLA và đóng vấn đề nhanh hơn.</p>
+          <div className="dl-cta-row">
+            <button className="dl-btn dl-btn-blue dl-btn-lg" onClick={goApp}>Start for free <Icon name="arrow-right" size={16} /></button>
+            <button className="dl-btn dl-btn-ghost dl-btn-lg" onClick={goApp}><Icon name="play" size={15} /> Watch demo</button>
           </div>
-
-          {/* ── TRUST BADGES ── */}
-          <div className="hd-trust animate-fade-rise-delay-3">
-            <span className="hd-trust-label">Trusted by modern support teams</span>
-            {LOGOS.map((name) => (
-              <span key={name} className="hd-logo-word">{name}</span>
-            ))}
+          <div className="dl-trust">
+            <div className="dl-avatars">{AV.map((c, i) => <span key={i} style={{ background: c }}>{String.fromCharCode(65 + i)}</span>)}</div>
+            Trusted by 500+ support teams
           </div>
         </header>
 
-        {/* ── KEY METRICS ── */}
-        <section className="hd-wrap" id="overview" style={{ paddingBottom: '2rem' }}>
-          <div className="hd-metrics">
-            {METRICS.map((m) => (
-              <div key={m.l} className="hd-metric liquid-glass hd-stagger">
-                <div className="hd-metric-val">{m.v}</div>
-                <div className="hd-metric-label">{m.l}</div>
+        {/* ── Browser mockup ── */}
+        <div className="dl-mock-wrap">
+          <div className="dl-mock">
+            <div className="dl-mock-bar">
+              <span className="dl-dot" style={{ background: '#EF4444' }} /><span className="dl-dot" style={{ background: '#F59E0B' }} /><span className="dl-dot" style={{ background: '#10B981' }} />
+              <span style={{ marginLeft: 12, fontSize: 12, color: 'var(--ts)' }}>app.hidesk.vn/tickets</span>
+            </div>
+            <div className="dl-mock-body">
+              <div className="dl-mock-side">
+                <div className="dl-mock-navi on"><Icon name="ticket" size={14} /> Tickets</div>
+                <div className="dl-mock-navi"><Icon name="dashboard" size={14} /> Dashboard</div>
+                <div className="dl-mock-navi"><Icon name="template" size={14} /> Kanban</div>
+                <div className="dl-mock-navi"><Icon name="barchart" size={14} /> Reports</div>
+              </div>
+              <div>
+                {[['HD-0481', 'Không đăng nhập được', 'Open', '#3B82F6'], ['HD-0479', 'Báo cáo xuất sai số liệu', 'In Progress', '#F97316'], ['HD-0472', 'Tích hợp VNPay', 'Testing', '#EAB308'], ['HD-0468', 'Sai kết quả tính lương', 'Deploy', '#10B981']].map((r, i) => (
+                  <div key={i} className="dl-mock-row">
+                    <span><b style={{ color: 'var(--blue)', fontSize: 12 }}>{r[0]}</b> <span className="c">{r[1]}</span></span>
+                    <span className="dl-pill" style={{ background: r[3] as string, color: r[2] === 'Complete' ? '#083' : '#fff' }}>{r[2]}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        </div>
+        <div style={{ textAlign: 'center' }}><div className="dl-scroll-hint"><Icon name="chevron" size={22} /></div></div>
+
+        {/* ── Features ── */}
+        <section className="dl-section dl-container" id="features">
+          <h2 className="dl-section-title">Everything your support team needs</h2>
+          <p className="dl-section-sub">Từ tiếp nhận đến đóng ticket — một nền tảng duy nhất, đủ mạnh cho vận hành dịch vụ.</p>
+          <div className="dl-features">
+            {FEATURES.map((f) => (
+              <div key={f.title} className="dl-feat">
+                <span className="dl-feat-ic"><Icon name={f.icon} size={20} /></span>
+                <h3>{f.title}</h3><p>{f.desc}</p>
               </div>
             ))}
           </div>
         </section>
 
-        {/* ── FEATURE GRID ── */}
-        <section className="hd-wrap hd-section" id="features">
-          <p className="hd-eyebrow">The platform</p>
-          <h2 className="hd-h2">Everything support needs,<br />in one intelligent workspace.</h2>
-          <div className="hd-features">
-            {FEATURES.map((f) => (
-              <div key={f.title} className="hd-feature liquid-glass hd-stagger">
-                <div className="hd-feature-icon"><FeatureIcon name={f.icon} /></div>
-                <h3 className="hd-feature-title">{f.title}</h3>
-                <p className="hd-feature-lead">{f.lead}</p>
-                <div className="hd-chips">
-                  {f.chips.map((c) => <span key={c} className="hd-chip">{c}</span>)}
+        {/* ── Status lifecycle ── */}
+        <section className="dl-section dl-container">
+          <h2 className="dl-section-title">From Open to Closed — every step tracked</h2>
+          <p className="dl-section-sub">Vòng đời ticket rõ ràng với trạng thái màu sắc chuẩn, nhánh Waiting / On Hold / Reopen.</p>
+          <div className="dl-flow dl-glass">
+            <div className="dl-flow-row">
+              {LIFECYCLE.map((x, i) => (
+                <span key={x.s} style={{ display: 'contents' }}>
+                  <span className={`dl-status ${lit > i ? 'lit' : ''}`} style={{ background: x.c, color: ['Complete', 'Resolved'].includes(x.s) ? '#064E3B' : '#fff' }}>{x.s}</span>
+                  {i < LIFECYCLE.length - 1 && <span className="dl-flow-arrow"><Icon name="arrow-right" size={16} /></span>}
+                </span>
+              ))}
+            </div>
+            <div className="dl-branch">
+              {BRANCH.map((x, i) => (
+                <span key={x.s} className={`dl-status ${lit > LIFECYCLE.length + i ? 'lit' : ''}`} style={{ background: x.c }}>{x.s}</span>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        {/* ── Testimonials ── */}
+        <section className="dl-section dl-container">
+          <h2 className="dl-section-title">Loved by support teams</h2>
+          <div className="dl-testi-grid" style={{ marginTop: 40 }}>
+            {TESTIMONIALS.map((tm, i) => (
+              <div key={i} className="dl-testi dl-glass">
+                <div className="q"><Icon name="quote" size={22} /></div>
+                <p>{tm.q}</p>
+                <div className="dl-testi-who">
+                  <span style={{ width: 38, height: 38, borderRadius: '50%', background: AV[i], display: 'grid', placeItems: 'center', fontWeight: 600, fontSize: 14 }}>{tm.n[0]}</span>
+                  <div><b>{tm.n}</b><br /><span>{tm.c}</span></div>
                 </div>
               </div>
             ))}
           </div>
         </section>
 
-        {/* ── CTA ── */}
-        <section className="hd-wrap" id="pricing">
-          <div className="hd-cta liquid-glass">
-            <h2 className="hd-h2">Ready to transform<br />customer support?</h2>
-            <p>Join thousands of growing businesses using HiDesk to deliver faster, smarter customer service.</p>
-            <button className="hd-btn hd-btn-primary" onClick={() => navigate('/login')}>Start Free</button>
+        {/* ── Pricing ── */}
+        <section className="dl-section dl-container" id="pricing">
+          <h2 className="dl-section-title">Simple, transparent pricing</h2>
+          <p className="dl-section-sub">Bắt đầu miễn phí. Nâng cấp khi đội bạn lớn hơn.</p>
+          <div className="dl-price-grid">
+            {PRICING.map((p) => (
+              <div key={p.name} className={`dl-price dl-glass ${p.pop ? 'pop' : ''}`}>
+                {p.pop && <span className="dl-price-tag">Most popular</span>}
+                <h3>{p.name}</h3>
+                <div className="amt">{p.price}<small>{p.unit}</small></div>
+                <ul>{p.feats.map((f) => <li key={f}><Icon name="check" size={16} /> {f}</li>)}</ul>
+                <button className={`dl-btn ${p.pop ? 'dl-btn-blue' : 'dl-btn-ghost'} dl-btn-lg`} onClick={goApp} style={{ width: '100%' }}>{p.name === 'Enterprise' ? 'Liên hệ' : 'Bắt đầu'}</button>
+              </div>
+            ))}
           </div>
         </section>
 
-        {/* ── FOOTER ── */}
-        <footer className="hd-wrap hd-footer" id="contact">
-          <div className="hd-footer-top">
-            <div className="hd-brand">
-              <span className="hd-logo">
-                <svg width={18} height={18} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.8} strokeLinecap="round" strokeLinejoin="round">
-                  <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
-                </svg>
-              </span>
-              <span className="hd-brand-name">HiDesk</span>
+        {/* ── Footer ── */}
+        <footer className="dl-footer dl-container">
+          <div className="dl-footer-top">
+            <div style={{ maxWidth: 280 }}>
+              <span className="dl-logo">HiDesk<span className="dl-logo-dot" /></span>
+              <p style={{ color: 'var(--ts)', fontSize: 13, marginTop: 12, lineHeight: 1.6 }}>Nền tảng Ticket & Hỗ trợ cho đội Service Operations. Nhanh hơn, rõ ràng hơn mỗi ngày.</p>
             </div>
-            <nav className="hd-footer-nav">
-              <a href="#privacy">Privacy</a>
-              <a href="#terms">Terms</a>
-              <a href="#support">Support</a>
-            </nav>
-            <div className="hd-social">
-              <Social href="#twitter" label="X">
-                <svg {...svgProps}><path d="M18 4l-5.5 6.8L18.5 20H15l-4-5-4 5H4l6-7.4L4.5 4H8l3.5 4.5L15 4z" /></svg>
-              </Social>
-              <Social href="#github" label="GitHub">
-                <svg {...svgProps}><path d="M9 19c-4 1.5-4-2-6-2m12 4v-3.5a3 3 0 0 0-.9-2.3c3-.3 6-1.5 6-6.5a5 5 0 0 0-1.4-3.5 4.6 4.6 0 0 0-.1-3.5s-1.1-.3-3.6 1.4a12 12 0 0 0-6 0C6.9 1.9 5.8 2.2 5.8 2.2a4.6 4.6 0 0 0-.1 3.5A5 5 0 0 0 4.3 9.2c0 5 3 6.2 6 6.5a3 3 0 0 0-.8 2.3V21" /></svg>
-              </Social>
-              <Social href="#linkedin" label="LinkedIn">
-                <svg {...svgProps}><path d="M16 8a6 6 0 0 1 6 6v6h-4v-6a2 2 0 0 0-4 0v6h-4v-10h4v1.5A4 4 0 0 1 16 8z" /><rect x="2" y="9" width="4" height="11" /><circle cx="4" cy="4" r="2" /></svg>
-              </Social>
+            <div className="dl-footer-links">
+              <div className="dl-footer-col"><h4>Product</h4><a onClick={goApp}>Features</a><a onClick={goApp}>Pricing</a><a onClick={goApp}>Kanban</a></div>
+              <div className="dl-footer-col"><h4>Company</h4><a onClick={goApp}>About</a><a onClick={goApp}>Docs</a><a onClick={goApp}>Contact</a></div>
+              <div className="dl-footer-col"><h4>Legal</h4><a onClick={goApp}>Privacy</a><a onClick={goApp}>Terms</a></div>
             </div>
           </div>
-          <div className="hd-copyright">© 2026 HiDesk. All rights reserved.</div>
+          <div className="dl-footer-bottom">
+            <span>© 2026 HiDesk — HiStaff. {t('auth.copyright') ? '' : ''}All rights reserved.</span>
+            <span>Made with ❤️ for support teams</span>
+          </div>
         </footer>
       </div>
     </div>
