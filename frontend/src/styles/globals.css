@@ -235,6 +235,21 @@ input, select, textarea { font-family: inherit; }
 .tip-list { margin: 0; padding-left: 18px; display: grid; gap: 8px; font-size: 12px; color: var(--text-secondary); }
 .tip-list li::marker { color: var(--color-primary); }
 
+/* Rounded glass pill tabs (sub-nav: Admin tabs, ticket status buckets) */
+.pill-tabs {
+  display: inline-flex; flex-wrap: wrap; gap: 6px; padding: 5px; margin-bottom: 16px;
+  border-radius: 14px; background: var(--bg-sunken); border: 1px solid var(--border); max-width: 100%;
+}
+.pill-tab {
+  height: 34px; padding: 0 16px; border: 1px solid transparent; border-radius: 9px;
+  background: transparent; color: var(--text-secondary); font-size: 12px; font-weight: 600;
+  cursor: pointer; transition: all .15s; display: inline-flex; align-items: center; gap: 6px; white-space: nowrap;
+}
+.pill-tab:hover { color: var(--text-primary); background: var(--bg-surface); }
+.pill-tab.active { background: var(--color-primary); color: #fff; border-color: var(--color-primary); box-shadow: 0 2px 8px var(--color-primary-20); }
+:root[data-theme='dark'] .pill-tabs { background: rgba(255,255,255,0.03); box-shadow: inset 0 1px 1px rgba(255,255,255,0.08); }
+:root[data-theme='dark'] .pill-tab.active { box-shadow: 0 0 16px rgba(59,130,246,0.35); }
+
 /* Segmented control (staff/customer toggle) */
 .seg { display: flex; gap: 6px; padding: 4px; background: var(--bg-sunken); border: 1px solid var(--border); border-radius: 10px; }
 .seg-btn {

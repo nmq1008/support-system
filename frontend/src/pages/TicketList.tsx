@@ -65,12 +65,12 @@ export function TicketList() {
 
       <div className="content-scroll">
         {/* Status bucket tabs — easy tracking (Excel row 5) */}
-        <div style={{ display: 'flex', gap: 20, borderBottom: '1px solid var(--border)', marginBottom: 12, flexWrap: 'wrap' }}>
+        <div className="pill-tabs">
           {STATUS_BUCKETS.map((b) => {
             const active = filters.status === b.statuses.join(',');
             return (
               <button key={b.key} onClick={() => setFilter('status', b.statuses.join(','))}
-                style={{ background: 'none', border: 'none', padding: '8px 0', borderBottom: active ? '2px solid var(--color-primary)' : '2px solid transparent', color: active ? 'var(--color-primary)' : 'var(--text-primary)', fontWeight: 600, fontSize: 12 }}>
+                className={`pill-tab ${active ? 'active' : ''}`}>
                 {t(`bucket.${b.label}`)}
               </button>
             );

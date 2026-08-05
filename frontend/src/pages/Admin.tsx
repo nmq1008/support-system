@@ -116,9 +116,9 @@ export function Admin() {
         </div>
       </div></div>
       <div className="content-scroll">
-        <div style={{ display: 'flex', gap: 24, borderBottom: '1px solid var(--border)', marginBottom: 16 }}>
+        <div className="pill-tabs">
           {TABS.map((tb) => (
-            <button key={tb.key} onClick={() => setTab(tb.key)} style={{ background: 'none', border: 'none', padding: '8px 0', borderBottom: tab === tb.key ? '2px solid var(--color-primary)' : '2px solid transparent', color: tab === tb.key ? 'var(--color-primary)' : 'var(--text-primary)', fontWeight: 600, fontSize: 12 }}>
+            <button key={tb.key} onClick={() => setTab(tb.key)} className={`pill-tab ${tab === tb.key ? 'active' : ''}`}>
               {tb.label}
             </button>
           ))}
