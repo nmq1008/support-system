@@ -5,20 +5,6 @@ import { useAuth } from '../context/AuthContext';
 import { api, apiError } from '../lib/api';
 import { Icon } from '../components/Icon';
 
-/** Faint helpdesk-themed glyphs scattered across the background. */
-const BG_ICONS: { name: string; top: string; left: string; size: number; rot: number }[] = [
-  { name: 'ticket', top: '12%', left: '8%', size: 46, rot: -12 },
-  { name: 'bell', top: '22%', left: '82%', size: 40, rot: 10 },
-  { name: 'users', top: '68%', left: '10%', size: 52, rot: 8 },
-  { name: 'check2', top: '78%', left: '84%', size: 44, rot: -8 },
-  { name: 'clock', top: '44%', left: '90%', size: 36, rot: 0 },
-  { name: 'template', top: '82%', left: '46%', size: 40, rot: 6 },
-  { name: 'report', top: '14%', left: '52%', size: 38, rot: -6 },
-  { name: 'jira', top: '54%', left: '4%', size: 34, rot: 12 },
-  { name: 'paperclip', top: '32%', left: '30%', size: 30, rot: -14 },
-  { name: 'search', top: '60%', left: '66%', size: 32, rot: 10 },
-];
-
 export function Login() {
   const { t, i18n } = useTranslation();
   const { user, login } = useAuth();
@@ -53,17 +39,10 @@ export function Login() {
 
   return (
     <div className="login-basic">
-      {/* Cinematic helpdesk background */}
+      {/* Cinematic helpdesk background (generated image + drifting aurora + floating activity) */}
       <div className="login-bg" aria-hidden>
         <div className="lb-aurora lb-a1" />
         <div className="lb-aurora lb-a2" />
-        <div className="lb-aurora lb-a3" />
-        <div className="lb-grid" />
-        {BG_ICONS.map((ic, i) => (
-          <span key={i} className="login-bg-ic" style={{ top: ic.top, left: ic.left, transform: `rotate(${ic.rot}deg)`, animationDelay: `${i * 0.6}s` }}>
-            <Icon name={ic.name} size={ic.size} />
-          </span>
-        ))}
         {/* floating helpdesk activity */}
         <div className="lb-chip lb-c1"><span className="lb-dot ok" /> HD-1042 <span className="lb-pill">Resolved</span></div>
         <div className="lb-chip lb-c2"><Icon name="bell" size={14} /> New ticket assigned</div>
