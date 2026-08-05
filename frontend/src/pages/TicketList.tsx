@@ -83,11 +83,11 @@ export function TicketList() {
             <Icon name="search" size={16} />
             <input placeholder={t('common.search')} defaultValue={filters.search} onKeyDown={(e) => { if (e.key === 'Enter') setFilter('search', (e.target as HTMLInputElement).value); }} />
           </div>
-          <select className="select" style={{ width: 160, height: 36 }} value={singleStatus} onChange={(e) => setFilter('status', e.target.value)}>
+          <select className="select" style={{ width: 'auto', minWidth: 170, height: 36 }} value={singleStatus} onChange={(e) => setFilter('status', e.target.value)}>
             <option value="">{t('common.status')}: {t('common.all')}</option>
             {statusOptions.map((s) => <option key={s} value={s}>{t(`status.${s}`)}</option>)}
           </select>
-          <select className="select" style={{ width: 130, height: 36 }} value={filters.priority} onChange={(e) => setFilter('priority', e.target.value)}>
+          <select className="select" style={{ width: 'auto', minWidth: 150, height: 36 }} value={filters.priority} onChange={(e) => setFilter('priority', e.target.value)}>
             <option value="">{t('common.priority')}: {t('common.all')}</option>
             {PRIORITY_OPTIONS.map((p) => <option key={p} value={p}>{p}</option>)}
           </select>
