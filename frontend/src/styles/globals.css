@@ -129,6 +129,14 @@ input, select, textarea { font-family: inherit; }
 /* ══ Login screen (single basic screen, helpdesk background) ══ */
 .login-basic { position: relative; height: 100vh; overflow: hidden; display: grid; place-items: center; padding: 24px;
   background: url('/login-bg.svg') center center / cover no-repeat, #060A12; }
+/* Fullscreen background video + readability tint */
+.login-video { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; z-index: 0; }
+.login-video-tint { position: absolute; inset: 0; z-index: 1; pointer-events: none;
+  background:
+    radial-gradient(680px 520px at 50% 46%, rgba(6,10,18,.28), rgba(6,10,18,.66) 78%),
+    linear-gradient(180deg, rgba(6,10,18,.30), rgba(6,10,18,.52)); }
+.login-basic .login-bg { z-index: 2; }
+.login-basic .login-lang { z-index: 4; }
 .login-basic .login-card {
   background: rgba(255,255,255,0.05); border-color: rgba(255,255,255,0.10);
   backdrop-filter: blur(18px) saturate(150%); -webkit-backdrop-filter: blur(18px) saturate(150%);

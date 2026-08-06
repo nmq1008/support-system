@@ -39,10 +39,14 @@ export function Login() {
 
   return (
     <div className="login-basic">
-      {/* Cinematic helpdesk background (generated image + drifting aurora + floating activity) */}
+      {/* Fullscreen background video (SVG scene shows as poster / fallback) */}
+      <video className="login-video" autoPlay muted loop playsInline poster="/login-bg.svg" aria-hidden>
+        <source src="/login-bg.mp4" type="video/mp4" />
+      </video>
+      <div className="login-video-tint" aria-hidden />
+
+      {/* Floating helpdesk activity over the video */}
       <div className="login-bg" aria-hidden>
-        <div className="lb-aurora lb-a1" />
-        <div className="lb-aurora lb-a2" />
         {/* floating helpdesk activity */}
         <div className="lb-chip lb-c1"><span className="lb-dot ok" /> HD-1042 <span className="lb-pill">Resolved</span></div>
         <div className="lb-chip lb-c2"><Icon name="bell" size={14} /> New ticket assigned</div>
