@@ -37,6 +37,15 @@ function buildWhere(user: AuthUser, f: DashboardFilters) {
     params.push(f.priority);
     where.push(`t.priority_level = $${i++}`);
   }
+  // Date range (by creation date) — applies to every widget, not just the timeline.
+  if (f.from) {
+    params.push(f.from);
+    where.push(`t.created_at::date >= $${i++}`);
+  }
+  if (f.to) {
+    params.push(f.to);
+    where.push(`t.created_at::date <= $${i++}`);
+  }
   return { clause: where.join(' AND '), params, nextIndex: i };
 }
 
