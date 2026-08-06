@@ -198,9 +198,9 @@ export function TicketDetailPage() {
                 {ticket.comments.map((c) => (
                   <div key={c.id} style={{ display: 'flex', gap: 10 }}>
                     <Avatar name={c.user_name} size={32} />
-                    <div style={{ flex: 1, background: c.is_internal ? '#FEF3C7' : 'var(--bg-sunken)', borderRadius: 10, padding: '8px 12px' }}>
+                    <div style={{ flex: 1, background: c.is_internal ? 'rgba(245,129,31,0.12)' : 'var(--bg-sunken)', border: c.is_internal ? '1px solid rgba(245,129,31,0.30)' : '1px solid transparent', borderRadius: 10, padding: '8px 12px' }}>
                       <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 12, alignItems: 'center' }}>
-                        <b>{c.user_name} {c.is_internal && <span className="tag-chip" style={{ background: '#F59E0B33', color: '#B45309' }}>{t('ticket.internal')}</span>}</b>
+                        <b>{c.user_name} {c.is_internal && <span className="tag-chip" style={{ background: 'rgba(245,129,31,0.20)', color: '#E0731A' }}>{t('ticket.internal')}</span>}</b>
                         <span style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
                           <span style={{ color: 'var(--text-muted)' }}>{relativeTime(c.created_at, i18n.language)}</span>
                           {c.user_id === user?.id && editingComment?.id !== c.id && (
