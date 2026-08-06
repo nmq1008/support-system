@@ -3,12 +3,12 @@
    Structural conventions adapted from HiStaff design system.
    ══════════════════════════════════════════════════════════════ */
 :root {
-  /* Brand — neutral grey (matched to the login video) */
-  --color-primary: #6E706E;
-  --color-primary-hover: #5C5E5C;
-  --color-primary-50: #9A9C9A;
-  --color-primary-20: #D3D4D3;
-  --color-primary-10: #EFF0EF;
+  /* Brand — orange on navy (fintech-style) */
+  --color-primary: #E0731A;
+  --color-primary-hover: #C86412;
+  --color-primary-50: #F0A566;
+  --color-primary-20: #F8DCC2;
+  --color-primary-10: #FDF1E6;
   --on-primary: #FFFFFF;
 
   /* Neutral */
@@ -21,24 +21,24 @@
   --color-black-5: #F3F5F7;
   --color-white: #FFFFFF;
 
-  --color-stroke-line: #E4E3E0;
-  --color-stroke-box: #DEDCD8;
+  --color-stroke-line: #ECEBE8;
+  --color-stroke-box: #E6E4E0;
 
-  /* Surfaces (light) — neutral grey */
-  --bg-app: #ECEBE9;
-  --bg-surface: #F8F7F5;
-  --bg-sunken: #E4E3E0;
-  --text-primary: #232220;
-  --text-secondary: #605E59;
-  --text-muted: #928F89;
-  --border: #DEDCD8;
-  --border-strong: #C4C1BB;
+  /* Surfaces (light) — clean neutral + orange accent */
+  --bg-app: #F5F4F1;
+  --bg-surface: #FFFFFF;
+  --bg-sunken: #EDECE8;
+  --text-primary: #1A1815;
+  --text-secondary: #5E5A54;
+  --text-muted: #8E8A82;
+  --border: #E6E4E0;
+  --border-strong: #CDC9C2;
 
   /* Semantic */
   --success: #19B36E;
   --warning: #F59E0B;
   --error: #EF4444;
-  --info: #6E706E;
+  --info: #E0731A;
 
   /* Radii */
   --radius-sm: 4px;
@@ -63,26 +63,26 @@
   --font-en: 'Inter', 'Be Vietnam Pro', sans-serif;
 }
 
-/* ── Dark mode — neutral graphite (matched to the login video) ── */
+/* ── Dark mode — black + orange (two-colour) ── */
 :root[data-theme='dark'] {
-  --bg-app: #1A1917;
-  --bg-surface: #242320;
-  --bg-sunken: #151412;
-  --text-primary: #ECEAE6;
-  --text-secondary: #A8A6A1;
-  --text-muted: #79776F;
-  --border: rgba(255,252,245,0.10);
-  --border-strong: rgba(255,252,245,0.18);
-  --color-black-5: #1F1E1B;
+  --bg-app: #0A0A0A;
+  --bg-surface: #161514;
+  --bg-sunken: #050505;
+  --text-primary: #F3F0EB;
+  --text-secondary: #A6A29A;
+  --text-muted: #6E6A63;
+  --border: rgba(255,255,255,0.09);
+  --border-strong: rgba(255,255,255,0.17);
+  --color-black-5: #141312;
 
-  /* neutral grey accent */
-  --color-primary: #9C9E9C;
-  --color-primary-hover: #AEB0AE;
-  --color-primary-50: #B7B9B7;
-  --color-primary-10: rgba(156,158,156,0.14);
-  --color-primary-20: rgba(156,158,156,0.26);
-  --on-primary: #1A1917;
+  /* orange accent */
+  --color-primary: #F5811F;
+  --color-primary-hover: #FF9636;
+  --color-primary-50: #F8A85E;
+  --color-primary-10: rgba(245,129,31,0.14);
+  --color-primary-20: rgba(245,129,31,0.26);
+  --on-primary: #0A0A0A;
 
-  --shadow-card: 0 8px 30px rgba(0,0,0,0.6);
-  --shadow-dropdown: 0 12px 30px rgba(0,0,0,0.65);
+  --shadow-card: 0 8px 30px rgba(0,0,0,0.7);
+  --shadow-dropdown: 0 12px 30px rgba(0,0,0,0.75);
 }
