@@ -3,12 +3,13 @@
    Structural conventions adapted from HiStaff design system.
    ══════════════════════════════════════════════════════════════ */
 :root {
-  /* Brand — warm amber (matched to the login video) */
-  --color-primary: #B26A20;
-  --color-primary-hover: #9A5A18;
-  --color-primary-50: #D69A5A;
-  --color-primary-20: #EBD6B4;
-  --color-primary-10: #FBF3E7;
+  /* Brand — neutral grey (matched to the login video) */
+  --color-primary: #6E706E;
+  --color-primary-hover: #5C5E5C;
+  --color-primary-50: #9A9C9A;
+  --color-primary-20: #D3D4D3;
+  --color-primary-10: #EFF0EF;
+  --on-primary: #FFFFFF;
 
   /* Neutral */
   --color-black-100: #131825;
@@ -20,24 +21,24 @@
   --color-black-5: #F3F5F7;
   --color-white: #FFFFFF;
 
-  --color-stroke-line: #EAE2D3;
-  --color-stroke-box: #E6DDCC;
+  --color-stroke-line: #E4E3E0;
+  --color-stroke-box: #DEDCD8;
 
-  /* Surfaces (light) — warm cream */
-  --bg-app: #F4EFE6;
-  --bg-surface: #FDFBF6;
-  --bg-sunken: #EFE8DB;
-  --text-primary: #2B2318;
-  --text-secondary: #6E6150;
-  --text-muted: #9C8F7B;
-  --border: #E6DDCC;
-  --border-strong: #CFC0A6;
+  /* Surfaces (light) — neutral grey */
+  --bg-app: #ECEBE9;
+  --bg-surface: #F8F7F5;
+  --bg-sunken: #E4E3E0;
+  --text-primary: #232220;
+  --text-secondary: #605E59;
+  --text-muted: #928F89;
+  --border: #DEDCD8;
+  --border-strong: #C4C1BB;
 
   /* Semantic */
   --success: #19B36E;
   --warning: #F59E0B;
   --error: #EF4444;
-  --info: #B26A20;
+  --info: #6E706E;
 
   /* Radii */
   --radius-sm: 4px;
@@ -62,24 +63,25 @@
   --font-en: 'Inter', 'Be Vietnam Pro', sans-serif;
 }
 
-/* ── Dark mode — warm retro (matched to the login video) ── */
+/* ── Dark mode — neutral graphite (matched to the login video) ── */
 :root[data-theme='dark'] {
-  --bg-app: #14100B;
-  --bg-surface: #1E1811;
-  --bg-sunken: #110D09;
-  --text-primary: #F3EAD9;
-  --text-secondary: #B4A68E;
-  --text-muted: #877A66;
-  --border: rgba(255,244,228,0.09);
-  --border-strong: rgba(255,244,228,0.17);
-  --color-black-5: #1B1610;
+  --bg-app: #1A1917;
+  --bg-surface: #242320;
+  --bg-sunken: #151412;
+  --text-primary: #ECEAE6;
+  --text-secondary: #A8A6A1;
+  --text-muted: #79776F;
+  --border: rgba(255,252,245,0.10);
+  --border-strong: rgba(255,252,245,0.18);
+  --color-black-5: #1F1E1B;
 
-  /* warm amber accent */
-  --color-primary: #E0A45C;
-  --color-primary-hover: #EAB374;
-  --color-primary-50: #EDBE84;
-  --color-primary-10: rgba(224,164,92,0.13);
-  --color-primary-20: rgba(224,164,92,0.24);
+  /* neutral grey accent */
+  --color-primary: #9C9E9C;
+  --color-primary-hover: #AEB0AE;
+  --color-primary-50: #B7B9B7;
+  --color-primary-10: rgba(156,158,156,0.14);
+  --color-primary-20: rgba(156,158,156,0.26);
+  --on-primary: #1A1917;
 
   --shadow-card: 0 8px 30px rgba(0,0,0,0.6);
   --shadow-dropdown: 0 12px 30px rgba(0,0,0,0.65);
