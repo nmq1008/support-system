@@ -82,11 +82,11 @@ export function LineChart({ data, height = 200 }: { data: LinePoint[]; height?: 
     <div style={{ overflowX: 'auto' }}>
       <svg width={w} height={height}>
         <line x1={pad} y1={height - pad} x2={w - pad} y2={height - pad} stroke="var(--border)" />
-        <path d={path('created')} fill="none" stroke="#2563EB" strokeWidth={2} />
+        <path d={path('created')} fill="none" stroke="var(--color-primary)" strokeWidth={2} />
         <path d={path('closed')} fill="none" stroke="#19B36E" strokeWidth={2} />
         {data.map((d, i) => (
           <g key={i}>
-            <circle cx={x(i)} cy={y(d.created)} r={3} fill="#2563EB" />
+            <circle cx={x(i)} cy={y(d.created)} r={3} fill="var(--color-primary)" />
             <circle cx={x(i)} cy={y(d.closed)} r={3} fill="#19B36E" />
             {i % Math.ceil(data.length / 7 || 1) === 0 && (
               <text x={x(i)} y={height - 8} textAnchor="middle" fontSize="9" fill="var(--text-muted)">{d.date.slice(5)}</text>
@@ -95,7 +95,7 @@ export function LineChart({ data, height = 200 }: { data: LinePoint[]; height?: 
         ))}
       </svg>
       <div style={{ display: 'flex', gap: 16, fontSize: 12, marginTop: 4 }}>
-        <span><span style={{ color: '#2563EB' }}>●</span> created</span>
+        <span><span style={{ color: 'var(--color-primary)' }}>●</span> created</span>
         <span><span style={{ color: '#19B36E' }}>●</span> closed</span>
       </div>
     </div>

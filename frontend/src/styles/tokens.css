@@ -3,12 +3,12 @@
    Structural conventions adapted from HiStaff design system.
    ══════════════════════════════════════════════════════════════ */
 :root {
-  /* Brand */
-  --color-primary: #2563EB;
-  --color-primary-hover: #1D4ED8;
-  --color-primary-50: #60A5FA;
-  --color-primary-20: #BFDBFE;
-  --color-primary-10: #EFF6FF;
+  /* Brand — warm amber (matched to the login video) */
+  --color-primary: #B26A20;
+  --color-primary-hover: #9A5A18;
+  --color-primary-50: #D69A5A;
+  --color-primary-20: #EBD6B4;
+  --color-primary-10: #FBF3E7;
 
   /* Neutral */
   --color-black-100: #131825;
@@ -20,24 +20,24 @@
   --color-black-5: #F3F5F7;
   --color-white: #FFFFFF;
 
-  --color-stroke-line: #EDEDED;
-  --color-stroke-box: #EAECF0;
+  --color-stroke-line: #EAE2D3;
+  --color-stroke-box: #E6DDCC;
 
-  /* Surfaces (light) */
-  --bg-app: #F5F7FB;
-  --bg-surface: #FFFFFF;
-  --bg-sunken: #F3F5F7;
-  --text-primary: #131825;
-  --text-secondary: #667085;
-  --text-muted: #98A2B3;
-  --border: #EAECF0;
-  --border-strong: #C3D4E9;
+  /* Surfaces (light) — warm cream */
+  --bg-app: #F4EFE6;
+  --bg-surface: #FDFBF6;
+  --bg-sunken: #EFE8DB;
+  --text-primary: #2B2318;
+  --text-secondary: #6E6150;
+  --text-muted: #9C8F7B;
+  --border: #E6DDCC;
+  --border-strong: #CFC0A6;
 
   /* Semantic */
   --success: #19B36E;
   --warning: #F59E0B;
   --error: #EF4444;
-  --info: #2563EB;
+  --info: #B26A20;
 
   /* Radii */
   --radius-sm: 4px;
@@ -62,25 +62,25 @@
   --font-en: 'Inter', 'Be Vietnam Pro', sans-serif;
 }
 
-/* ── Dark mode — dimension.dev inspired (ultra-dark + glass) ── */
+/* ── Dark mode — warm retro (matched to the login video) ── */
 :root[data-theme='dark'] {
-  --bg-app: #080C14;
-  --bg-surface: #0D131F;
-  --bg-sunken: #0A0F18;
-  --text-primary: #F1F5F9;
-  --text-secondary: #94A3B8;
-  --text-muted: #64748B;
-  --border: rgba(255,255,255,0.08);
-  --border-strong: rgba(255,255,255,0.16);
-  --color-black-5: #111827;
+  --bg-app: #14100B;
+  --bg-surface: #1E1811;
+  --bg-sunken: #110D09;
+  --text-primary: #F3EAD9;
+  --text-secondary: #B4A68E;
+  --text-muted: #877A66;
+  --border: rgba(255,244,228,0.09);
+  --border-strong: rgba(255,244,228,0.17);
+  --color-black-5: #1B1610;
 
-  /* electric blue accent */
-  --color-primary: #3B82F6;
-  --color-primary-hover: #2f6fe0;
-  --color-primary-50: #60A5FA;
-  --color-primary-10: rgba(59,130,246,0.12);
-  --color-primary-20: rgba(59,130,246,0.22);
+  /* warm amber accent */
+  --color-primary: #E0A45C;
+  --color-primary-hover: #EAB374;
+  --color-primary-50: #EDBE84;
+  --color-primary-10: rgba(224,164,92,0.13);
+  --color-primary-20: rgba(224,164,92,0.24);
 
-  --shadow-card: 0 8px 30px rgba(0,0,0,0.55);
-  --shadow-dropdown: 0 12px 30px rgba(0,0,0,0.6);
+  --shadow-card: 0 8px 30px rgba(0,0,0,0.6);
+  --shadow-dropdown: 0 12px 30px rgba(0,0,0,0.65);
 }
