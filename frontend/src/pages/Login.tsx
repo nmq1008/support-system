@@ -79,15 +79,8 @@ export function Login() {
       </video>
       <div className="login-video-tint" aria-hidden />
 
-      {/* Floating helpdesk activity over the video */}
-      <div className="login-bg" aria-hidden>
-        {/* floating helpdesk activity */}
-        <div className="lb-chip lb-c1"><span className="lb-dot ok" /> HD-1042 <span className="lb-pill">Resolved</span></div>
-        <div className="lb-chip lb-c2"><Icon name="bell" size={14} /> New ticket assigned</div>
-        <div className="lb-ring lb-c3"><span className="in">96%<small>SLA</small></span></div>
-        <div className="lb-chip lb-c5"><Icon name="check2" size={14} /> SLA on track</div>
-        <div className="lb-bubble lb-c4"><span className="em">CS</span> How can we help you today?</div>
-      </div>
+      {/* soft glow behind the card (keeps the video subject uncovered) */}
+      <div className="login-bg" aria-hidden />
 
       <button className="login-lang" onClick={() => i18n.changeLanguage(i18n.language === 'vi' ? 'en' : 'vi')}>{i18n.language === 'vi' ? 'EN' : 'VI'}</button>
 
