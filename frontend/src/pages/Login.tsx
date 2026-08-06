@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { Navigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useAuth } from '../context/AuthContext';
@@ -16,6 +16,25 @@ export function Login() {
   const [remember, setRemember] = useState<boolean>(true);
   const [forgot, setForgot] = useState(false);
   const [forgotMsg, setForgotMsg] = useState('');
+  const videoRef = useRef<HTMLVideoElement>(null);
+
+  // Parallax: nudge/tilt the video toward the cursor so the scene appears to look at it.
+  useEffect(() => {
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+    let raf = 0;
+    const onMove = (e: MouseEvent) => {
+      cancelAnimationFrame(raf);
+      raf = requestAnimationFrame(() => {
+        const x = e.clientX / window.innerWidth - 0.5;   // -0.5 … 0.5
+        const y = e.clientY / window.innerHeight - 0.5;
+        const v = videoRef.current;
+        if (v) v.style.transform =
+          `scale(1.12) translate(${(-x * 34).toFixed(1)}px, ${(-y * 22).toFixed(1)}px) rotateY(${(x * 6).toFixed(2)}deg) rotateX(${(-y * 5).toFixed(2)}deg)`;
+      });
+    };
+    window.addEventListener('mousemove', onMove);
+    return () => { cancelAnimationFrame(raf); window.removeEventListener('mousemove', onMove); };
+  }, []);
 
   if (user) return <Navigate to="/dashboard" replace />;
 
@@ -40,7 +59,7 @@ export function Login() {
   return (
     <div className="login-basic">
       {/* Fullscreen background video (SVG scene shows as poster / fallback) */}
-      <video className="login-video" autoPlay muted loop playsInline poster="/login-bg.svg" aria-hidden>
+      <video ref={videoRef} className="login-video" autoPlay muted loop playsInline poster="/login-bg.svg" aria-hidden>
         <source src="/login-bg.mp4" type="video/mp4" />
       </video>
       <div className="login-video-tint" aria-hidden />
