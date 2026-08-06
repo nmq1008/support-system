@@ -1,23 +1,9 @@
-import { useState } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { Navigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useAuth } from '../context/AuthContext';
 import { api, apiError } from '../lib/api';
 import { Icon } from '../components/Icon';
-
-/** Faint helpdesk-themed glyphs scattered across the background. */
-const BG_ICONS: { name: string; top: string; left: string; size: number; rot: number }[] = [
-  { name: 'ticket', top: '12%', left: '8%', size: 46, rot: -12 },
-  { name: 'bell', top: '22%', left: '82%', size: 40, rot: 10 },
-  { name: 'users', top: '68%', left: '10%', size: 52, rot: 8 },
-  { name: 'check2', top: '78%', left: '84%', size: 44, rot: -8 },
-  { name: 'clock', top: '44%', left: '90%', size: 36, rot: 0 },
-  { name: 'template', top: '82%', left: '46%', size: 40, rot: 6 },
-  { name: 'report', top: '14%', left: '52%', size: 38, rot: -6 },
-  { name: 'jira', top: '54%', left: '4%', size: 34, rot: 12 },
-  { name: 'paperclip', top: '32%', left: '30%', size: 30, rot: -14 },
-  { name: 'search', top: '60%', left: '66%', size: 32, rot: 10 },
-];
 
 export function Login() {
   const { t, i18n } = useTranslation();
@@ -30,6 +16,40 @@ export function Login() {
   const [remember, setRemember] = useState<boolean>(true);
   const [forgot, setForgot] = useState(false);
   const [forgotMsg, setForgotMsg] = useState('');
+  const videoRef = useRef<HTMLVideoElement>(null);
+
+  // Robust background video: keep it playing (nudge autoplay + resume on first
+  // interaction), and add a subtle cursor parallax so the scene leans toward the
+  // pointer. Works for any clip and never looks broken.
+  useEffect(() => {
+    const v = videoRef.current;
+    if (!v) return;
+    const kick = () => { const p = v.play(); if (p && p.catch) p.catch(() => {}); };
+    kick();
+    const onFirst = () => { kick(); window.removeEventListener('pointerdown', onFirst); window.removeEventListener('keydown', onFirst); };
+    window.addEventListener('pointerdown', onFirst);
+    window.addEventListener('keydown', onFirst);
+
+    const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    let raf = 0;
+    const onMove = (e: MouseEvent) => {
+      cancelAnimationFrame(raf);
+      raf = requestAnimationFrame(() => {
+        const x = e.clientX / window.innerWidth - 0.5;   // -0.5 … 0.5
+        const y = e.clientY / window.innerHeight - 0.5;
+        v.style.transform =
+          `scale(1.12) translate(${(-x * 30).toFixed(1)}px, ${(-y * 20).toFixed(1)}px) rotateY(${(x * 5).toFixed(2)}deg) rotateX(${(-y * 4).toFixed(2)}deg)`;
+      });
+    };
+    if (!reduce) window.addEventListener('mousemove', onMove);
+
+    return () => {
+      cancelAnimationFrame(raf);
+      window.removeEventListener('mousemove', onMove);
+      window.removeEventListener('pointerdown', onFirst);
+      window.removeEventListener('keydown', onFirst);
+    };
+  }, []);
 
   if (user) return <Navigate to="/dashboard" replace />;
 
@@ -53,14 +73,14 @@ export function Login() {
 
   return (
     <div className="login-basic">
-      {/* Helpdesk-themed background */}
-      <div className="login-bg" aria-hidden>
-        {BG_ICONS.map((ic, i) => (
-          <span key={i} className="login-bg-ic" style={{ top: ic.top, left: ic.left, transform: `rotate(${ic.rot}deg)` }}>
-            <Icon name={ic.name} size={ic.size} />
-          </span>
-        ))}
-      </div>
+      {/* Fullscreen background video (SVG scene shows as poster / fallback) */}
+      <video ref={videoRef} className="login-video" autoPlay muted loop playsInline preload="auto" poster="/login-bg.svg" aria-hidden>
+        <source src="/login-bg.mp4" type="video/mp4" />
+      </video>
+      <div className="login-video-tint" aria-hidden />
+
+      {/* soft glow behind the card (keeps the video subject uncovered) */}
+      <div className="login-bg" aria-hidden />
 
       <button className="login-lang" onClick={() => i18n.changeLanguage(i18n.language === 'vi' ? 'en' : 'vi')}>{i18n.language === 'vi' ? 'EN' : 'VI'}</button>
 

@@ -65,12 +65,12 @@ export function TicketList() {
 
       <div className="content-scroll">
         {/* Status bucket tabs — easy tracking (Excel row 5) */}
-        <div style={{ display: 'flex', gap: 20, borderBottom: '1px solid var(--border)', marginBottom: 12, flexWrap: 'wrap' }}>
+        <div className="pill-tabs">
           {STATUS_BUCKETS.map((b) => {
             const active = filters.status === b.statuses.join(',');
             return (
               <button key={b.key} onClick={() => setFilter('status', b.statuses.join(','))}
-                style={{ background: 'none', border: 'none', padding: '8px 0', borderBottom: active ? '2px solid var(--color-primary)' : '2px solid transparent', color: active ? 'var(--color-primary)' : 'var(--text-primary)', fontWeight: 600, fontSize: 12 }}>
+                className={`pill-tab ${active ? 'active' : ''}`}>
                 {t(`bucket.${b.label}`)}
               </button>
             );
@@ -83,11 +83,11 @@ export function TicketList() {
             <Icon name="search" size={16} />
             <input placeholder={t('common.search')} defaultValue={filters.search} onKeyDown={(e) => { if (e.key === 'Enter') setFilter('search', (e.target as HTMLInputElement).value); }} />
           </div>
-          <select className="select" style={{ width: 160, height: 36 }} value={singleStatus} onChange={(e) => setFilter('status', e.target.value)}>
+          <select className="select" style={{ width: 'auto', minWidth: 170, height: 36 }} value={singleStatus} onChange={(e) => setFilter('status', e.target.value)}>
             <option value="">{t('common.status')}: {t('common.all')}</option>
             {statusOptions.map((s) => <option key={s} value={s}>{t(`status.${s}`)}</option>)}
           </select>
-          <select className="select" style={{ width: 130, height: 36 }} value={filters.priority} onChange={(e) => setFilter('priority', e.target.value)}>
+          <select className="select" style={{ width: 'auto', minWidth: 150, height: 36 }} value={filters.priority} onChange={(e) => setFilter('priority', e.target.value)}>
             <option value="">{t('common.priority')}: {t('common.all')}</option>
             {PRIORITY_OPTIONS.map((p) => <option key={p} value={p}>{p}</option>)}
           </select>
@@ -118,16 +118,20 @@ export function TicketList() {
               {!loading && data?.items.map((tk) => (
                 <tr key={tk.id} onClick={() => navigate(`/tickets/${tk.id}`)}>
                   <td>
-                    <span style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-                      <PriorityBadge level={tk.priority_level} /><b>{tk.code}</b>
-                      {tk.escalated && <span className="tag-chip" style={{ background: '#FEE2E2', color: '#DC2626' }}>ESC</span>}
-                    </span>
-                    <div className="subline">{tk.title}</div>
-                    {tk.customer_name && <div className="subline">👤 {tk.customer_name}</div>}
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: 5 }}>
+                      <span style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                        <PriorityBadge level={tk.priority_level} /><b>{tk.code}</b>
+                        {tk.escalated && <span className="tag-chip" style={{ background: '#FEE2E2', color: '#DC2626' }}>ESC</span>}
+                      </span>
+                      <div className="subline">{tk.title}</div>
+                      {tk.customer_name && <div className="subline">👤 {tk.customer_name}</div>}
+                    </div>
                   </td>
                   <td>
-                    <span style={{ display: 'flex', alignItems: 'center', gap: 6 }}>{tk.project_name} {tk.project_priority && <ProjectPriorityBadge value={tk.project_priority} />}</span>
-                    <div className="subline" style={{ display: 'flex', alignItems: 'center', gap: 6 }}>{tk.org_name} {tk.customer_priority && <CustomerPriorityBadge value={tk.customer_priority} />}</div>
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: 5 }}>
+                      <span style={{ display: 'flex', alignItems: 'center', gap: 6 }}>{tk.project_name} {tk.project_priority && <ProjectPriorityBadge value={tk.project_priority} />}</span>
+                      <div className="subline" style={{ display: 'flex', alignItems: 'center', gap: 6 }}>{tk.org_name} {tk.customer_priority && <CustomerPriorityBadge value={tk.customer_priority} />}</div>
+                    </div>
                   </td>
                   <td>
                     <div style={{ display: 'flex', flexWrap: 'wrap', gap: 4, maxWidth: 150 }}>

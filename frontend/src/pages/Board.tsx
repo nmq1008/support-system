@@ -114,7 +114,7 @@ export function Board() {
         <div className="page-title-row">
           <h1 className="page-title">{t('board.title')}</h1>
           <div className="page-actions">
-            <select className="select" style={{ width: 230, height: 34 }} value={projectId} onChange={(e) => setProjectId(e.target.value)}>
+            <select className="select" style={{ width: 'auto', minWidth: 230, maxWidth: 360, height: 34 }} value={projectId} onChange={(e) => setProjectId(e.target.value)}>
               {isAdmin && <option value="all">{t('board.allProjects')}</option>}
               {projects.map((p) => <option key={p.id} value={p.id}>{p.name} · {p.org_name}</option>)}
             </select>

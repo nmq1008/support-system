@@ -50,8 +50,8 @@ export function Dashboard() {
   const STAT = [
     { key: 'total', value: s?.total, color: 'var(--color-primary)' },
     { key: 'inProgress', value: s?.inProgress, color: '#F97316' },
-    { key: 'waitingPickup', value: s?.waitingPickup, color: '#3B82F6' },
-    { key: 'newToday', value: s?.newToday, color: '#8B5CF6' },
+    { key: 'waitingPickup', value: s?.waitingPickup, color: '#F5811F' },
+    { key: 'newToday', value: s?.newToday, color: '#C86A1E' },
     { key: 'slaBreached', value: s?.slaBreached, color: '#EF4444' },
     { key: 'reopenRate', value: s ? `${s.reopenRate}%` : undefined, color: '#DC2626' },
   ];
