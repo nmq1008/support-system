@@ -18,22 +18,36 @@ export function Login() {
   const [forgotMsg, setForgotMsg] = useState('');
   const videoRef = useRef<HTMLVideoElement>(null);
 
-  // Parallax: nudge/tilt the video toward the cursor so the scene appears to look at it.
+  // Drive the video playhead from the pointer's X position so the character's
+  // head turns to follow the cursor (works when the clip is a head-turn sweep).
+  // Scrubbing also paints frames without autoplay, so the video shows even when
+  // browsers block muted-autoplay.
   useEffect(() => {
-    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
-    let raf = 0;
-    const onMove = (e: MouseEvent) => {
-      cancelAnimationFrame(raf);
-      raf = requestAnimationFrame(() => {
-        const x = e.clientX / window.innerWidth - 0.5;   // -0.5 … 0.5
-        const y = e.clientY / window.innerHeight - 0.5;
-        const v = videoRef.current;
-        if (v) v.style.transform =
-          `scale(1.12) translate(${(-x * 34).toFixed(1)}px, ${(-y * 22).toFixed(1)}px) rotateY(${(x * 6).toFixed(2)}deg) rotateX(${(-y * 5).toFixed(2)}deg)`;
-      });
+    const v = videoRef.current;
+    if (!v) return;
+    const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    let raf = 0, cur = 0.5, target = 0.5, dur = 0;
+
+    const onMeta = () => {
+      dur = v.duration && isFinite(v.duration) ? v.duration : 0;
+      try { v.pause(); v.currentTime = dur * cur; } catch { /* ignore */ }
     };
-    window.addEventListener('mousemove', onMove);
-    return () => { cancelAnimationFrame(raf); window.removeEventListener('mousemove', onMove); };
+    if (v.readyState >= 1) onMeta();
+    v.addEventListener('loadedmetadata', onMeta);
+
+    const onMove = (e: MouseEvent) => { target = Math.min(1, Math.max(0, e.clientX / window.innerWidth)); };
+    if (!reduce) window.addEventListener('mousemove', onMove);
+
+    const tick = () => {
+      cur += (target - cur) * 0.14;                       // ease toward pointer for a smooth turn
+      if (dur) {
+        const t = Math.min(dur - 0.05, Math.max(0, cur * dur));
+        if (Math.abs(v.currentTime - t) > 0.03) { try { v.currentTime = t; } catch { /* seeking */ } }
+      }
+      raf = requestAnimationFrame(tick);
+    };
+    raf = requestAnimationFrame(tick);
+    return () => { cancelAnimationFrame(raf); v.removeEventListener('loadedmetadata', onMeta); window.removeEventListener('mousemove', onMove); };
   }, []);
 
   if (user) return <Navigate to="/dashboard" replace />;
@@ -59,7 +73,7 @@ export function Login() {
   return (
     <div className="login-basic">
       {/* Fullscreen background video (SVG scene shows as poster / fallback) */}
-      <video ref={videoRef} className="login-video" autoPlay muted loop playsInline poster="/login-bg.svg" aria-hidden>
+      <video ref={videoRef} className="login-video" muted playsInline preload="auto" poster="/login-bg.svg" aria-hidden>
         <source src="/login-bg.mp4" type="video/mp4" />
       </video>
       <div className="login-video-tint" aria-hidden />
